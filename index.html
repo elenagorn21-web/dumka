@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Думка · Антикризовий аудит — наглядний конспект</title>
+<style>
+  :root{
+    --primary:#1F4E2C;
+    --primary-d:#163a20;
+    --light:#EAF2EC;
+    --text:#1b1b1b;
+    --h2:#333333;
+    --muted:#555555;
+    --muted-lt:#777777;
+    --border:#CCCCCC;
+    --white:#FFFFFF;
+    --a:#1F4E2C;  /* priority A */
+    --b:#7a8a52;  /* priority B */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:Arial,Helvetica,sans-serif;
+    color:var(--text);
+    background:#f4f6f4;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px 70px}
+
+  /* HERO */
+  .hero{
+    background:linear-gradient(135deg,var(--primary) 0%,var(--primary-d) 100%);
+    color:var(--white);
+    padding:46px 22px 40px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::after{content:"";position:absolute;right:-80px;top:-80px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.05)}
+  .hero::before{content:"";position:absolute;left:-60px;bottom:-90px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.04)}
+  .hero .inner{max-width:1080px;margin:0 auto;position:relative;z-index:2}
+  .kicker{letter-spacing:3px;font-size:12px;text-transform:uppercase;opacity:.85;margin-bottom:14px}
+  .hero h1{font-size:34px;line-height:1.15;font-weight:700;margin-bottom:12px}
+  .hero .sub{font-size:16px;opacity:.92;max-width:760px;margin:0 auto 22px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .tag{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:5px 12px;border-radius:20px;font-size:12.5px}
+
+  /* SNAPSHOT STRIP */
+  .snap{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:-28px auto 0;max-width:1080px;position:relative;z-index:5}
+  .snap .card{background:var(--white);border-radius:12px;padding:18px 16px;text-align:center;box-shadow:0 6px 22px rgba(0,0,0,.08);border-top:3px solid var(--primary)}
+  .snap .num{font-size:30px;font-weight:700;color:var(--primary);line-height:1}
+  .snap .lbl{font-size:12.5px;color:var(--muted);margin-top:6px}
+
+  /* SECTIONS */
+  section{margin-top:46px}
+  h2.sec{font-size:21px;color:var(--primary);font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  h2.sec .dot{width:10px;height:22px;background:var(--primary);border-radius:3px;display:inline-block}
+  .sec-lead{color:var(--muted);font-size:14.5px;margin-bottom:18px;max-width:840px}
+
+  /* VALUE — black box vs system */
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+  .vs .panel{border-radius:12px;padding:20px}
+  .vs .bad{background:#fff;border:1px solid var(--border)}
+  .vs .good{background:var(--light);border:1px solid #cfe0d3}
+  .vs h3{font-size:15px;margin-bottom:12px}
+  .vs .bad h3{color:#8a2f2f}
+  .vs .good h3{color:var(--primary)}
+  .vs ul{list-style:none}
+  .vs li{font-size:13.5px;padding:7px 0 7px 24px;position:relative;border-bottom:1px dashed #e2e2e2}
+  .vs li:last-child{border-bottom:none}
+  .vs .bad li::before{content:"✕";position:absolute;left:0;color:#b14444;font-weight:700}
+  .vs .good li::before{content:"✓";position:absolute;left:0;color:var(--primary);font-weight:700}
+  .arrow{display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--primary);font-weight:700}
+  @media(max-width:760px){.vs{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
+
+  /* LOGIC FLOW */
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .flow .step{background:#fff;border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:8px;padding:9px 13px;font-size:13px;font-weight:600;color:var(--primary)}
+  .flow .sep{color:var(--muted-lt);font-weight:700}
+  .flow .grow{border-left-color:#c2a23a;color:#9a7d1f}
+  .note{margin-top:14px;background:var(--light);border-left:4px solid var(--primary);padding:12px 16px;font-size:13.5px;border-radius:0 8px 8px 0}
+
+  /* QUESTIONS grid */
+  .qs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .q{background:#fff;border:1px solid var(--border);border-radius:9px;padding:12px 14px;font-size:13.5px;display:flex;gap:10px;transition:.15s}
+  .q:hover{border-color:var(--primary);box-shadow:0 3px 12px rgba(31,78,44,.1);transform:translateY(-1px)}
+  .q .n{flex:0 0 24px;height:24px;background:var(--primary);color:#fff;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  @media(max-width:760px){.qs{grid-template-columns:1fr}}
+
+  /* TIMELINE */
+  .tl{position:relative;margin-top:6px}
+  .tl-item{display:grid;grid-template-columns:90px 1fr;gap:16px;padding:12px 0;border-bottom:1px solid #e6e9e6;cursor:pointer;transition:.15s}
+  .tl-item:hover{background:#fafcfa}
+  .tl-when{text-align:right}
+  .tl-stage{font-size:11px;font-weight:700;color:var(--primary);letter-spacing:.5px}
+  .tl-days{font-size:12px;color:var(--muted-lt);margin-top:2px}
+  .tl-body h4{font-size:14.5px;color:var(--h2);margin-bottom:3px}
+  .tl-res{font-size:13px;color:var(--muted)}
+  .tl-res b{color:var(--primary)}
+  .tl-detail{font-size:12.5px;color:var(--muted);margin-top:7px;display:none;background:var(--light);padding:9px 12px;border-radius:7px;line-height:1.45}
+  .tl-item.open .tl-detail{display:block}
+  .tl-item .chev{float:right;color:var(--muted-lt);font-size:12px}
+
+  /* SCORING */
+  .score{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .score .s{border-radius:9px;padding:13px 10px;color:#fff;text-align:center}
+  .s1{background:#3d7a4f}.s2{background:#6b8f3a}.s3{background:#c2922a}.s4{background:#c2662a}.s5{background:#a62f2f}
+  .score .lvl{font-size:22px;font-weight:700}
+  .score .st{font-size:12.5px;font-weight:700;margin-top:3px}
+  .score .ds{font-size:11px;opacity:.92;margin-top:4px;line-height:1.3}
+  .prio{margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:13px 16px;font-size:13.5px}
+  .prio b{color:var(--primary)}
+  .prio .q{display:inline;background:none;border:none;padding:0;color:var(--muted-lt);font-style:italic}
+
+  /* ENGINES */
+  .eng{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .eng .e{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center;transition:.15s}
+  .eng .e:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 4px 14px rgba(31,78,44,.1)}
+  .eng .ico{font-size:24px;margin-bottom:6px}
+  .eng .et{font-size:13px;font-weight:700;color:var(--primary)}
+  .eng .er{font-size:11px;color:var(--muted-lt);margin-top:5px}
+  @media(max-width:760px){.eng{grid-template-columns:1fr 1fr}.score{grid-template-columns:1fr 1fr 1fr}}
+
+  /* DELIVERABLES */
+  .del{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  .d{display:flex;gap:11px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:11px 13px;align-items:flex-start;transition:.15s}
+  .d:hover{border-color:var(--primary);box-shadow:0 3px 12px rgba(31,78,44,.09)}
+  .d .dn{flex:0 0 26px;height:26px;background:var(--light);color:var(--primary);border:1px solid #cfe0d3;border-radius:6px;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .d .dt{font-size:13.5px;font-weight:700;color:var(--h2)}
+  .d .df{font-size:11px;color:#fff;background:var(--primary);border-radius:4px;padding:1px 7px;margin-left:6px;font-weight:700;vertical-align:middle}
+  .d .dd{font-size:12px;color:var(--muted);margin-top:2px}
+  @media(max-width:760px){.del{grid-template-columns:1fr}}
+
+  /* ROADMAP */
+  .road{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .road .r{border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#fff}
+  .road .rh{background:var(--primary);color:#fff;text-align:center;font-weight:700;font-size:13px;padding:8px}
+  .road .rb{padding:11px;font-size:12px;color:var(--muted)}
+  .road .r:nth-child(1) .rh{background:#a62f2f}
+  .road .r:nth-child(2) .rh{background:#c2662a}
+  .road .r:nth-child(3) .rh{background:#c2922a}
+  .road .r:nth-child(4) .rh{background:#6b8f3a}
+  .road .r:nth-child(5) .rh{background:#3d7a4f}
+  @media(max-width:760px){.road{grid-template-columns:1fr}}
+
+  /* NEXT STEP */
+  .next{background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;border-radius:14px;padding:26px 26px;margin-top:46px}
+  .next h2{font-size:20px;margin-bottom:14px}
+  .next ol{list-style:none;counter-reset:s;display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .next li{counter-increment:s;font-size:13.5px;padding-left:34px;position:relative;opacity:.96}
+  .next li::before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  @media(max-width:760px){.next ol{grid-template-columns:1fr}}
+
+  footer{text-align:center;color:var(--muted-lt);font-size:11.5px;margin-top:30px;padding-top:18px;border-top:1px solid var(--border)}
+
+  .pill{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:1px 7px}
+  .pa{background:var(--primary);color:#fff}
+  .pb{background:#e6ecdf;color:#5a6b34;border:1px solid #cdd9bd}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="inner">
+    <div class="kicker">Комерційна пропозиція · Конспект</div>
+    <h1>Антикризовий аудит ресторану «Думка»</h1>
+    <p class="sub">Перетворити ресторан із «чорної скриньки» на керовану систему зі зрозумілими цифрами, відповідальними, строками та KPI.</p>
+    <div class="tags">
+      <span class="tag">Фінансова діагностика</span>
+      <span class="tag">Food &amp; labor cost control</span>
+      <span class="tag">Operational audit</span>
+      <span class="tag">Capacity audit</span>
+      <span class="tag">Revenue engine</span>
+      <span class="tag">30/60/90 turnaround</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="snap">
+    <div class="card"><div class="num">15</div><div class="lbl">робочих днів аудиту</div></div>
+    <div class="card"><div class="num">8</div><div class="lbl">етапів діагностики</div></div>
+    <div class="card"><div class="num">10</div><div class="lbl">фінальних deliverables</div></div>
+    <div class="card"><div class="num">24 год</div><div class="lbl">до перших рішень</div></div>
+  </div>
+
+  <!-- VALUE -->
+  <section>
+    <h2 class="sec"><span class="dot"></span>Навіщо це власнику</h2>
+    <p class="sec-lead">Аудит — це не витрата, а повернення. Сама каса не каже, чи 100 zł принесли один гість чи десять. Поки немає обліку — кожне рішення наосліп. Завдання аудиту: дати точну систему координат і перекрити витоки, ефект від яких відчутний уже в перші тижні.</p>
+    <div class="vs">
+      <div class="panel bad">
+        <h3>Зараз: «чорна скринька»</h3>
+        <ul>
+          <li>Видно лише загальну касу, не видно звідки й куди течуть гроші</li>
+          <li>Завищений food cost, неконтрольовані списання та псування</li>
+          <li>Закупівлі без порівняння цін, роздуті графіки в порожні години</li>
+          <li>Ручні знижки й видалення в POS, неконтрольований бар</li>
+          <li>Головна задача власника — «нашкребти на зарплати»</li>
+        </ul>
+      </div>
+      <div class="arrow">→</div>
+      <div class="panel good">
+        <h3>Після аудиту: керована система</h3>
+        <ul>
+          <li>Скільки треба заробляти щодня, щоб вийти на break-even</li>
+          <li>Фактичні food / beverage / labor / prime cost</li>
+          <li>Які страви годують бізнес, а які руйнують маржу</li>
+          <li>Реальна capacity: скільки гостей обслужити без провалу</li>
+          <li>Дії на 24 год / 7 / 30 / 60 / 90 днів з KPI та ефектом</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOGIC -->
+  <section>
+    <h2 class="sec"><span class="dot"></span>Логіка аудиту: спочатку економіка, потім зростання</h2>
+    <p class="sec-lead">Перевірка керованості по шарах. Не можна масштабувати трафік у систему, де вже є втрати грошей на складі, в меню, графіках чи сервісі.</p>
+    <div class="flow">
+      <span class="step">Гроші</span><span class="sep">→</span>
+      <span class="step">Контроль</span><span class="sep">→</span>
+      <span class="step">Продукт / меню</span><span class="sep">→</span>
+      <span class="step">Команда</span><span class="sep">→</span>
+      <span class="step">Потік гостей</span><span class="sep">→</span>
+      <span class="step">Ризики / compliance</span><span class="sep">→</span>
+      <span class="step grow">Зростання</span>
+    </div>
+    <div class="note"><b>Capacity first.</b> Не всі продажі корисні: деякі канали дають оборот, але руйнують маржу, кухню або репутацію. Реклама не лікує касовий розрив.</div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <section>
+    <h2 class="sec"><span class="dot"></span>10 питань, на які власник отримає відповідь</h2>
+    <div class="qs">
+      <div class="q"><span class="n">1</span><span>Скільки заробляти щодня, щоб вийти на <b>break-even</b>?</span></div>
+      <div class="q"><span class="n">2</span><span>Які витрати критичні й потребують негайної корекції?</span></div>
+      <div class="q"><span class="n">3</span><span>Який фактичний food, beverage, labor і <b>prime cost</b>?</span></div>
+      <div class="q"><span class="n">4</span><span>Які страви заробляють гроші, а які руйнують маржу?</span></div>
+      <div class="q"><span class="n">5</span><span>Де губляться продукти: закупівлі, склад, порції, бар, фрод?</span></div>
+      <div class="q"><span class="n">6</span><span>Скільки гостей реально обслужити без провалу кухні?</span></div>
+      <div class="q"><span class="n">7</span><span>Чи відповідає графік персоналу реальному попиту?</span></div>
+      <div class="q"><span class="n">8</span><span>Які канали продажів прибуткові, а які — лише видимість?</span></div>
+      <div class="q"><span class="n">9</span><span>Що розвивати: ресторан, банкети, pit-stop, B2B чи гібрид?</span></div>
+      <div class="q"><span class="n">10</span><span>Що ухвалити в перші 24 год, 7, 30 і 90 днів?</span></div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section>
+    <h2 class="sec"><span class="dot"></span>Етапи аудиту та результат кожного <span style="font-size:12px;color:var(--muted-lt);font-weight:400">(натисніть етап)</span></h2>
+    <p class="sec-lead">Кожен етап завершується конкретним управлінським результатом — не «що вивчено», а які рішення можна ухвалити.</p>
+    <div class="tl" id="tl">
+      <div class="tl-item"><div class="tl-when"><div class="tl-stage">ЕТАП 0</div><div class="tl-days">до дня 1</div></div><div class="tl-body"><h4>Pre-Audit <span class="chev">▾</span></h4><div class="tl-res">→ <b>Первинна карта підозр і data gaps</b></div><div class="tl-detail">Запит документів, вивантажень POS/ERP, фінпоказників, меню, складу, персоналу. До виходу в ресторан — зрозуміти, які зони вже виглядають ризикованими.</div></div></div>
+      <div class="tl-item"><div class="tl-when"><div class="tl-stage">ЕТАП 1</div><div class="tl-days">дні 1–4</div></div><div class="tl-body"><h4>Stop-Bleeding Audit <span class="chev">▾</span></h4><div class="tl-res">→ <b>Emergency Action Memo</b></div><div class="tl-detail">Cash balance, зобов'язання на 14–30 днів, знижки, видалення, повернення, списання, права доступу, закупівлі, бар, робота в реальній зміні. Що зупинити негайно.</div></div></div>
+      <div class="tl-item"><div class="tl-when"><div class="tl-stage">ЕТАП 2</div><div class="tl-days">дні 5–8</div></div><div class="tl-body"><h4>Фінансово-управлінський аудит <span class="chev">▾</span></h4><div class="tl-res">→ <b>Financial Diagnostic Pack</b></div><div class="tl-detail">P&amp;L, cash flow, валова маржа, food/beverage/labor/prime cost, оренда, break-even, unit economics за каналами. Скільки заробляти на день, щоб не йти в мінус.</div></div></div>
+      <div class="tl-item"><div class="tl-when"><div class="tl-stage">ЕТАП 3</div><div class="tl-days">дні 6–10</div></div><div class="tl-body"><h4>Аудит меню, food cost і складу <span class="chev">▾</span></h4><div class="tl-res">→ <b>Menu Engineering Matrix</b></div><div class="tl-detail">Sales mix, ABC/XYZ, contribution margin, theoretical vs actual food cost, техкарти, закупівлі, FIFO, списання, бар. Відокремити страви, що годують, від тих, що псують економіку.</div></div></div>
+      <div class="tl-item"><div class="tl-when"><div class="tl-stage">ЕТАП 4</div><div class="tl-days">дні 8–11</div></div><div class="tl-body"><h4>Capacity &amp; Flow Audit <span class="chev">▾</span></h4><div class="tl-res">→ <b>Capacity &amp; Bottleneck Map</b></div><div class="tl-detail">Місткість, оборотність столів, швидкість кухні й сервісу, пропускна здатність бару, можливість приймати групи/банкети. Не можна продавати більше гостей, ніж ресторан здатний обслужити.</div></div></div>
+      <div class="tl-item"><div class="tl-when"><div class="tl-stage">ЕТАП 5</div><div class="tl-days">дні 9–12</div></div><div class="tl-body"><h4>Аудит сервісу, команди та labor cost <span class="chev">▾</span></h4><div class="tl-res">→ <b>HR &amp; Service Plan</b></div><div class="tl-detail">Графіки, виручка на співробітника, порожні години, переробки, сервісний стандарт, продажі офіціантів, мотивація. Знизити labor cost без убивства сервісу.</div></div></div>
+      <div class="tl-item"><div class="tl-when"><div class="tl-stage">ЕТАП 6</div><div class="tl-days">дні 10–13</div></div><div class="tl-body"><h4>Маркетинговий аудит і revenue engine <span class="chev">▾</span></h4><div class="tl-res">→ <b>Revenue Engine Plan</b></div><div class="tl-detail">Google Business, локальне SEO, відгуки, швидкість відповіді на ліди, туристичний потік, pit-stop menu, B2B, банкети, партнерства. Правильні гості в правильний формат.</div></div></div>
+      <div class="tl-item"><div class="tl-when"><div class="tl-stage">ЕТАП 7</div><div class="tl-days">дні 11–14</div></div><div class="tl-body"><h4>Техніко-юридичний та compliance-аудит <span class="chev">▾</span></h4><div class="tl-res">→ <b>Compliance Risk Memo</b></div><div class="tl-detail">Sanepid/HACCP, алергени, температурні листи, ліцензія на алкоголь, каса, трудові документи, BHP, оренда, ZAiKS/STOART, GDPR. Знизити ризик штрафів.</div></div></div>
+      <div class="tl-item"><div class="tl-when"><div class="tl-stage">ЕТАП 8</div><div class="tl-days">дні 13–15</div></div><div class="tl-body"><h4>Turnaround Design <span class="chev">▾</span></h4><div class="tl-res">→ <b>Final Report + 30/60/90 Roadmap</b></div><div class="tl-detail">Зведення всіх даних, scoring ризиків, RACI-матриця, Owner Dashboard. Не список зі 100 проблем, а послідовність рішень: що негайно, що дасть швидкий ефект, що відкласти.</div></div></div>
+    </div>
+  </section>
+
+  <!-- SCORING -->
+  <section>
+    <h2 class="sec"><span class="dot"></span>Scoring і пріоритизація ризиків</h2>
+    <p class="sec-lead">Кожен блок оцінюється не «на око», а за єдиною системою: фінансовий ефект, терміновість, складність, ризик опору, вплив на гостя.</p>
+    <div class="score">
+      <div class="s s1"><div class="lvl">1</div><div class="st">Healthy</div><div class="ds">Норма, втручання не термінове</div></div>
+      <div class="s s2"><div class="lvl">2</div><div class="st">Watch</div><div class="ds">Слабкі місця, точкова корекція</div></div>
+      <div class="s s3"><div class="lvl">3</div><div class="st">Problem</div><div class="ds">Впливає на прибуток, потрібен план</div></div>
+      <div class="s s4"><div class="lvl">4</div><div class="st">Critical</div><div class="ds">Суттєва втрата грошей / репутації</div></div>
+      <div class="s s5"><div class="lvl">5</div><div class="st">Emergency</div><div class="ds">Діяти негайно: розрив, штраф, фрод</div></div>
+    </div>
+    <div class="prio"><b>Правило пріоритету:</b> спочатку — <span class="pill pa">A</span> високий фінефект + висока терміновість + низька/середня складність, потім <span class="pill pb">B</span>. <span class="q">«Спочатку перекриваємо трубу, потім обираємо колір відра.»</span></div>
+  </section>
+
+  <!-- ENGINES -->
+  <section>
+    <h2 class="sec"><span class="dot"></span>Який комерційний двигун розвивати</h2>
+    <p class="sec-lead">Один із результатів аудиту — обґрунтована відповідь, яку бізнес-модель розвивати далі (з урахуванням ризиків кожної).</p>
+    <div class="eng">
+      <div class="e"><div class="ico">🍽️</div><div class="et">Класичний ресторан</div><div class="er">сильна кухня й постійні гості</div></div>
+      <div class="e"><div class="ico">🚌</div><div class="et">Туристичний pit-stop</div><div class="er">потік поруч, гості в транзиті</div></div>
+      <div class="e"><div class="ico">🎉</div><div class="et">Банкетний майданчик</div><div class="er">зал і сімейний попит</div></div>
+      <div class="e"><div class="ico">🤝</div><div class="et">B2B-групи</div><div class="er">гіди, автобуси, готелі</div></div>
+      <div class="e"><div class="ico">⚙️</div><div class="et">Гібрид</div><div class="er">за сильного менеджменту</div></div>
+    </div>
+  </section>
+
+  <!-- DELIVERABLES -->
+  <section>
+    <h2 class="sec"><span class="dot"></span>Фінальний пакет: 10 deliverables</h2>
+    <div class="del">
+      <div class="d"><div class="dn">1</div><div><span class="dt">Executive Report<span class="df">PDF/DOCX</span></span><div class="dd">Діагноз, головні ризики, фінкартина, 10 рішень</div></div></div>
+      <div class="d"><div class="dn">2</div><div><span class="dt">Financial Diagnostic Pack<span class="df">XLSX</span></span><div class="dd">P&amp;L, cash flow, break-even, prime cost, unit economics</div></div></div>
+      <div class="d"><div class="dn">3</div><div><span class="dt">Menu Engineering Matrix<span class="df">XLSX</span></span><div class="dd">ABC/XYZ, contribution margin, дія щодо кожної страви</div></div></div>
+      <div class="d"><div class="dn">4</div><div><span class="dt">Operational Risk Map<span class="df">XLSX/DOCX</span></span><div class="dd">Склад, приймання, бар, списання, фрод-ризики</div></div></div>
+      <div class="d"><div class="dn">5</div><div><span class="dt">Capacity &amp; Bottleneck Map<span class="df">Схема</span></span><div class="dd">Пропускна здатність кухні, залу, бару, груп</div></div></div>
+      <div class="d"><div class="dn">6</div><div><span class="dt">HR &amp; Service Plan<span class="df">DOCX</span></span><div class="dd">Графіки, ролі, мотивація, KPI, training plan</div></div></div>
+      <div class="d"><div class="dn">7</div><div><span class="dt">Revenue Engine Plan<span class="df">DOCX</span></span><div class="dd">Google Business, B2B, банкети, тургрупи, відгуки</div></div></div>
+      <div class="d"><div class="dn">8</div><div><span class="dt">Compliance Risk Memo<span class="df">DOCX</span></span><div class="dd">Sanepid/HACCP, каса, алкоголь, оренда, праця</div></div></div>
+      <div class="d"><div class="dn">9</div><div><span class="dt">30/60/90 Roadmap<span class="df">XLSX</span></span><div class="dd">Задачі, строки, власники, KPI, ефект</div></div></div>
+      <div class="d"><div class="dn">10</div><div><span class="dt">Owner Dashboard<span class="df">XLSX</span></span><div class="dd">Щоденні й щотижневі показники для власника</div></div></div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section>
+    <h2 class="sec"><span class="dot"></span>30/60/90: швидкі перемоги + системна перебудова</h2>
+    <div class="road">
+      <div class="r"><div class="rh">24 години</div><div class="rb">Обмежити права POS, перевірити cash balance, зупинити неконтрольовані закупівлі, призначити власників інвентаризації</div></div>
+      <div class="r"><div class="rh">7 днів</div><div class="rb">Перерахувати топ-техкарти, скоригувати графіки, прибрати збиткові позиції, оновити Google Business, зібрати базові офери</div></div>
+      <div class="r"><div class="rh">30 днів</div><div class="rb">Регулярна інвентаризація, waste log, KPI офіціантів, B2B-партнерства, банкетна й туристична воронка</div></div>
+      <div class="r"><div class="rh">60 днів</div><div class="rb">Перевірити ефект перших впроваджень, скоригувати меню, закріпити сервісний стандарт, посилити прибуткові канали</div></div>
+      <div class="r"><div class="rh">90 днів</div><div class="rb">Стійка бізнес-модель, повторна перевірка prime cost, найвигідніші канали, рішення щодо інвестицій</div></div>
+    </div>
+  </section>
+
+  <!-- NEXT STEP -->
+  <div class="next">
+    <h2>Наступний крок</h2>
+    <ol>
+      <li>Коротка зустріч: цілі, побоювання, фінситуація, обмеження</li>
+      <li>Підписання договору та NDA</li>
+      <li>Передача data request list</li>
+      <li>Доступ до POS/ERP (або старт постановки мінімального обліку)</li>
+      <li>Погодження дат спостереження в ресторані</li>
+      <li>Запуск етапу Stop-Bleeding Audit</li>
+    </ol>
+  </div>
+
+  <footer>
+    Підготувала: Олена Горницька · Бізнес-консалтинг та аудит діючого бізнесу (Польща) · 21 червня 2026<br>
+    Конфіденційно. Документ призначений для попереднього погодження обсягу робіт із власником.
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('#tl .tl-item').forEach(function(it){
+    it.addEventListener('click',function(){it.classList.toggle('open')});
+  });
+</script>
+</body>
+</html>
