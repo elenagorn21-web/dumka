@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Анкета власниці «Думки» — діагностика управління</title>
+<style>
+  :root{
+    --primary:#1F4E2C; --light:#EAF2EC; --border:#CCCCCC;
+    --text:#1a1a1a; --h2:#333333; --muted:#555555; --muted-lt:#777777; --white:#fff;
+    --danger:#8a2b2b; --accent2:#c9a227;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif; color:var(--text); background:#f4f6f4; line-height:1.5; font-size:16px;}
+  .wrap{max-width:760px; margin:0 auto; padding:0 0 120px;}
+  header{background:var(--primary); color:var(--white); padding:26px 20px 22px;}
+  header .kicker{font-size:12px; letter-spacing:.14em; text-transform:uppercase; opacity:.85; margin:0 0 6px;}
+  header h1{font-size:22px; margin:0 0 8px; font-weight:bold; line-height:1.25;}
+  header p{margin:0; font-size:14px; opacity:.92;}
+  .intro{background:var(--white); padding:18px 20px; border-bottom:1px solid var(--border); font-size:14.5px; color:var(--muted);}
+  .intro b{color:var(--text);}
+  .progress-bar{position:sticky; top:0; z-index:20; background:#f4f6f4; padding:10px 20px; border-bottom:1px solid var(--border);}
+  .progress-track{height:8px; background:var(--light); border-radius:6px; overflow:hidden;}
+  .progress-fill{height:100%; width:0; background:var(--primary); transition:width .25s ease;}
+  .progress-label{font-size:12px; color:var(--muted); margin-top:6px;}
+  section.block{background:var(--white); margin:14px 12px; border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+  .block-head{background:var(--light); padding:14px 18px; border-bottom:1px solid var(--border);}
+  .block-head .idx{display:inline-block; min-width:26px; height:26px; line-height:26px; text-align:center; background:var(--primary); color:#fff; border-radius:50%; font-size:13px; font-weight:bold; margin-right:8px;}
+  .block-head h2{display:inline; font-size:16.5px; color:var(--primary); font-weight:bold; margin:0;}
+  .block-head p{margin:8px 0 0; font-size:13px; color:var(--muted);}
+  .q{padding:16px 18px; border-bottom:1px solid #eee;}
+  .q:last-child{border-bottom:none;}
+  .q.sensitive{background:#fbf7ec; border-left:3px solid var(--accent2);}
+  .q > label.qtitle{display:block; font-weight:bold; font-size:15px; margin-bottom:10px; color:var(--text);}
+  .q .hint{font-weight:normal; color:var(--muted-lt); font-size:12.5px; display:block; margin-top:3px;}
+  .opt{display:flex; align-items:flex-start; gap:10px; padding:9px 11px; border:1px solid var(--border); border-radius:9px; margin-bottom:8px; cursor:pointer; background:#fff; transition:.12s;}
+  .opt:hover{border-color:var(--primary);}
+  .opt.checked{border-color:var(--primary); background:var(--light);}
+  .opt input{margin-top:3px; width:18px; height:18px; accent-color:var(--primary); flex:0 0 auto;}
+  .opt span{font-size:14.5px;}
+  textarea, input.freetext{width:100%; border:1px solid var(--border); border-radius:9px; padding:10px 12px; font-size:14.5px; font-family:inherit; resize:vertical;}
+  textarea{min-height:70px;}
+  .other-inline{margin-top:2px;}
+  .other-inline input{width:100%; border:none; border-bottom:1px solid var(--primary); font-size:14.5px; padding:3px 0; background:transparent;}
+  .block-submit{padding:14px 18px; background:var(--light); display:flex; align-items:center; gap:12px; flex-wrap:wrap; border-top:1px solid var(--border);}
+  .btn-block{background:var(--primary); color:#fff; padding:11px 16px; font-size:14px; border-radius:9px; border:none; font-weight:bold; cursor:pointer;}
+  .btn-block:disabled{opacity:.6;}
+  .btn-block.done{background:#3f7a4f;}
+  .block-status{font-size:13px; color:var(--primary); font-weight:bold;}
+  .footer-bar{position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--border); padding:12px 16px; z-index:30;}
+  .footer-inner{max-width:760px; margin:0 auto; display:flex; gap:10px; align-items:center;}
+  button{font-family:inherit;}
+  .btn-primary{background:var(--primary); color:#fff; flex:1; border:none; border-radius:10px; padding:13px 18px; font-weight:bold; font-size:15px; cursor:pointer;}
+  .btn-primary:disabled{opacity:.55; cursor:not-allowed;}
+  .btn-ghost{background:#fff; color:var(--primary); border:1px solid var(--primary); border-radius:10px; padding:13px 18px; font-weight:bold; font-size:15px; cursor:pointer;}
+  .save-note{font-size:12px; color:var(--muted-lt); text-align:center; padding:6px 20px 0;}
+  .thanks{display:none; background:var(--white); margin:14px 12px; border:1px solid var(--primary); border-radius:12px; padding:26px 20px; text-align:center;}
+  .thanks h2{color:var(--primary); margin:0 0 8px;}
+  .thanks p{color:var(--muted); margin:0 0 6px; font-size:14.5px;}
+  .fieldnote{font-size:12.5px; color:var(--muted-lt); padding:0 12px; margin:8px 0 0;}
+  @media(min-width:600px){ header h1{font-size:25px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">Антикризовий аудит · конфіденційно</p>
+    <h1>Анкета власниці «Думки»</h1>
+    <p>Діагностика того, як улаштована ваша щоденна робота з грошима, кухнею й персоналом.</p>
+  </header>
+
+  <div class="intro">
+    Ми вже почали аудит <b>вашого</b> закладу й готуємо точний план. Тут лише те, що впливає на гроші: системи, реальний облік, собівартість, прибуток.<br><br>
+    <b>Можна заповнювати частинами.</b> Після кожного короткого блоку тисніть «<b>Зберегти цей блок</b>» — відповіді одразу зберігаються, і навіть якщо вас відволікли, нічого не загубиться. Не знаєте відповідь — обирайте «не знаю». Чутливі теми можна не розкривати тут і позначити «обговорити усно».
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-label" id="plabel">Заповнено 0%</div>
+  </div>
+
+  <form id="form"></form>
+
+  <div class="thanks" id="thanks">
+    <h2>Дякуємо! ✔</h2>
+    <p>Ваші відповіді збережено. Ми опрацюємо їх і повернемось із наступними кроками.</p>
+    <p id="thanks-extra"></p>
+  </div>
+
+  <p class="fieldnote">Дані анкети конфіденційні й використовуються лише для аудиту закладу «Думка».</p>
+</div>
+
+<div class="footer-bar">
+  <div class="footer-inner">
+    <button type="button" class="btn-ghost" id="btnJson" title="Завантажити відповіді файлом">⤓ JSON</button>
+    <button type="button" class="btn-primary" id="btnSubmit">Завершити анкету</button>
+  </div>
+  <div class="save-note" id="saveNote">Чернетка зберігається автоматично</div>
+</div>
+
+<script>
+/* ============================================================
+   КОНФІГ. Після розгортання Google Apps Script — вставити URL.
+   Порожній endpoint → блоки зберігаються лише на пристрої;
+   транспорт — кнопка «⤓ JSON» + email.
+============================================================ */
+const CONFIG = {
+  endpoint: "",
+  fallbackEmail: "elenagorn21@gmail.com",
+  restaurant: "Думка",
+  version: "v2"
+};
+
+/* ============================================================
+   СХЕМА. id — стабільний ключ. type: single | multi | text ;
+   other:true → варіант «Інше»; sensitive:true → делікатне;
+   hint — просте пояснення.
+============================================================ */
+const SCHEMA = [
+{ id:"1", title:"Управління", desc:"Хто керує щодня і як часто контролює.", questions:[
+  {id:"op_who", type:"single", q:"Хто веде операційне управління щодня", opts:["Власниця особисто","Керуючий / менеджер","Змінні адміністратори"], other:true},
+  {id:"op_freq", type:"single", q:"Як часто ви особисто контролюєте операційку", hint:"виручка, залишки, каса, зміни", opts:["Щодня","Щотижня","Щомісяця","Від випадку до випадку"]}
+]},
+
+{ id:"2", title:"Відвідуваність по днях", desc:"Скільки гостей у кожен день тижня, піки й провали.", questions:[
+  {id:"op_att_mon", type:"single", q:"Понеділок", opts:["Вихідний"]},
+  {id:"op_att_tue", type:"single", q:"Вівторок — гостей за день", opts:["До 5","5–10","10–20","20–50","50+"]},
+  {id:"op_att_wed", type:"single", q:"Середа — гостей за день", opts:["До 5","5–10","10–20","20–50","50+"]},
+  {id:"op_att_thu", type:"single", q:"Четвер — гостей за день", opts:["До 5","5–10","10–20","20–50","50+"]},
+  {id:"op_att_fri", type:"single", q:"П'ятниця — гостей за день", opts:["До 5","5–10","10–20","20–50","50+"]},
+  {id:"op_att_sat", type:"single", q:"Субота — гостей за день", opts:["До 5","5–10","10–20","20–50","50+"]},
+  {id:"op_att_sun", type:"single", q:"Неділя — гостей за день", opts:["До 5","5–10","10–20","20–50","50+"]},
+  {id:"op_peak_hours", type:"multi", q:"Найпіковіші години", opts:["Обід 12–15","День 15–18","Вечеря 18–19"]},
+  {id:"op_capacity_data", type:"single", q:"Чи є дані для розрахунку завантаження й оборотності залу", hint:"кількість чеків/столів за період, час «життя» столу (table duration), заповнюваність місць (seat turnover / occupancy). Ми порахуємо самі — важливо, чи є звідки взяти", opts:["Так, є за останні місяці","Можна вивантажити з POS","Немає таких даних","Не знаю, що це"]},
+  {id:"op_dead", type:"text", q:"Коли навпаки «мертві» години (провали)", hint:"своїми словами"}
+]},
+
+{ id:"3", title:"Формати роботи", desc:"Які канали є і наскільки вони активні.", questions:[
+  {id:"op_formats", type:"multi", q:"Які формати роботи є в закладі", opts:["Зал","Доставка власна","Самовивіз","Агрегатори (Glovo / Bolt / Pyszne)","Банкети й події","Кейтеринг виїзний","Тургрупи"], other:true},
+  {id:"op_freq_banquet", type:"single", q:"Банкети й події — приблизно на місяць", opts:["Немає","1–3","4–8","8+"]},
+  {id:"op_freq_catering", type:"single", q:"Кейтеринг виїзний — приблизно на місяць", opts:["Немає","1–3","Щотижня","Частіше"], other:true},
+  {id:"op_freq_groups", type:"single", q:"Тургрупи — приблизно на місяць", opts:["Немає","1–3","Щотижня","Частіше"], other:true},
+  {id:"op_freq_delivery", type:"single", q:"Доставка / самовивіз — наскільки активні", opts:["Немає","Кілька на тиждень","Щодня"], other:true}
+]},
+
+{ id:"4", title:"Системи, доступи, міграція", desc:"Що використовуєте і чи можна перенести дані.", questions:[
+  {id:"sys_pos", type:"multi", q:"Каса / POS у залі", opts:["Restaumatic POS","Poster","iiko","r_keeper","Gastro / інша PL-система","Проста фіскальна каса без POS"], other:true},
+  {id:"sys_web", type:"multi", q:"Онлайн-замовлення й сайт", opts:["Сайт на Restaumatic","Власний сайт","Glovo","Bolt Food","Pyszne.pl","Wolt","Тільки Instagram / Facebook"], other:true},
+  {id:"sys_fiscal", type:"single", q:"Фіскалізація", opts:["Окрема drukarka fiskalna","Інтегрована з POS","Онлайн-каса","Не знаю"]},
+  {id:"sys_wh", type:"single", q:"Складський облік ведеться у…", opts:["У POS-системі","Окремому складському софті","Excel / Google Таблицях","Паперовому зошиті","Не ведеться"], other:true},
+  {id:"sys_acc", type:"multi", q:"Хто/що веде бухгалтерію", opts:["Зовнішнє biuro rachunkowe","Внутрішній бухгалтер","Веду сама","Софт (wFirma / ifirma / Fakturownia)"], other:true},
+  {id:"sys_integr", type:"single", q:"Чи пов'язані каса ↔ склад ↔ бухгалтерія", opts:["Усе інтегроване","Частково","Усе окремо","Не знаю"]},
+  {id:"sys_admin", type:"single", q:"Хто власник/адмін акаунтів (POS, сайт)", hint:"важливо для перенесення в нову систему", opts:["Власниця","Керуючий","Підрядник / IT","Постачальник POS","Не знаю"]},
+  {id:"sys_export", type:"single", q:"Чи можна вивантажити з системи історію продажів, меню, ТТК", hint:"щоб перенести дані, напр., у Poster", opts:["Так, легко","Складно","Ні","Не знаю"]}
+]},
+
+{ id:"5", title:"Фіскальна система проти реального обліку", desc:"Найважливіше: наскільки офіційні дані збігаються з реальністю.", questions:[
+  {id:"real_shadow", type:"single", q:"Чи ведеться «реальний» облік окремо від фіскальної системи", hint:"реальні продажі/залишки в Excel чи зошиті, а не лише офіційні", opts:["Так, окремо","Ні, лише те, що в системі","Частково"]},
+  {id:"real_allsales", type:"single", q:"Чи все, що продається в залі, проходить через касу/POS", hint:"для повноти картини; деталі можна усно", sensitive:true, opts:["Так, усе","Переважно","Частина повз касу","Волію обговорити усно"]},
+  {id:"real_ttk_match", type:"single", q:"Чи збігаються грамівки в системі з реальними на кухні", opts:["Так, готують за ТТК","Готують «на око»","У системі занижені/завищені під фіскал","Не знаю"]},
+  {id:"real_personal", type:"single", q:"Чи відділені гроші й каса залу від особистих коштів власниці", hint:"окремий рахунок/каса бізнесу проти особистих грошей", opts:["Так, окремий рахунок і каса","Частково змішані","Усе разом"]},
+  {id:"real_who_numbers", type:"single", q:"Хто реально «тримає всі цифри» бізнесу", hint:"якщо одна людина — це ризик залежності", opts:["Власниця","Бухгалтер","Керуючий","Ніхто цілісно"]}
+]},
+
+{ id:"6", title:"Технологічні картки і калькуляція", desc:"Рецептури й собівартість страв.", questions:[
+  {id:"ttk_exist", type:"single", q:"Чи є технологічні картки (ТТК з грамівками)", opts:["Так, на всі страви","Частково","Тільки «в голові» шефа","Немає"]},
+  {id:"ttk_where", type:"multi", q:"Де зберігаються ТТК", opts:["У POS-системі","Окремий файл (Excel / Word)","Паперові картки","У шефа в голові"], other:true},
+  {id:"ttk_owner", type:"single", q:"Хто відповідає за ТТК і їх оновлення", opts:["Шеф","Власниця","Технолог","Ніхто конкретно"]},
+  {id:"ttk_upd", type:"single", q:"Чи оновлюються ТТК при зміні закупівельних цін", opts:["Регулярно","Іноді","Ніколи"]},
+  {id:"ttk_foodcost", type:"single", q:"Чи рахується food cost по стравах", hint:"food cost — частка вартості продуктів у ціні страви", opts:["По кожній страві","По категоріях","Загальний по закладу","Не рахується"]}
+]},
+
+{ id:"7", title:"Управлінський облік", desc:"Де живуть реальні цифри бізнесу.", questions:[
+  {id:"mgmt_where", type:"single", q:"Реальний управлінський облік ведеться…", opts:["У спеціалізованому софті","В Excel / Google Таблицях","У зошиті-щоденнику","«У голові»","Не ведеться системно"], other:true},
+  {id:"mgmt_freq", type:"single", q:"Як часто зводиться підсумок", opts:["Щодня","Щотижня","Щомісяця","Нерегулярно"]},
+  {id:"mgmt_shift", type:"single", q:"Чи є щоденний звіт по зміні (виручка / каса / інкасація)", opts:["Так, завжди","Іноді","Ні"]}
+]},
+
+{ id:"8", title:"Склад і закупівлі", desc:"Контроль руху продуктів і втрат.", questions:[
+  {id:"wh_inv", type:"single", q:"Як часто робите інвентаризацію", opts:["Щодня по критичних позиціях","Щотижня","Щомісяця","Раз на квартал і рідше","Не робимо"]},
+  {id:"wh_writeoff", type:"single", q:"Як фіксуються списання (бій, псування, харчування персоналу)", opts:["У софті","У зошиті","Не фіксуються"]},
+  {id:"wh_accept", type:"single", q:"Приймання товару від постачальника", opts:["Завжди звіряємо з накладною й вагою","Вибірково","Не звіряємо"]},
+  {id:"wh_suppliers", type:"single", q:"Скільки основних постачальників", opts:["1–2","3–5","6 і більше"]},
+  {id:"wh_minstock", type:"single", q:"Чи є контроль залишків / мінімальних запасів", opts:["Так, у софті","Вручну","Немає"]},
+  {id:"wh_shrink", type:"single", q:"Чи траплялися незрозумілі недостачі", opts:["Виявляли факти","Є підозри","Ні","Ніколи не перевіряли"]}
+]},
+
+{ id:"9", title:"Фінансова методологія", desc:"Як власниця рахує гроші й прибуток.", questions:[
+  {id:"fin_profit", type:"single", q:"Як рахуєте, скільки заклад реально заробив", opts:["Чітко за рівнями прибутку","Приблизно: виручка мінус витрати","«Скільки лишилось у касі»","Не рахую"]},
+  {id:"fin_levels", type:"single", q:"Чи розділяєте види прибутку", hint:"маржинальний (після продуктів) → операційний (після оренди, ЗП, маркетингу) → чистий (після податків і кредитів)", opts:["Так, усі рівні","Частково","Ні"]},
+  {id:"fin_breakeven", type:"single", q:"Чи знаєте точку беззбитковості", hint:"мінімальна виручка, за якої ви ще не в мінусі", opts:["Так, рахую регулярно","Рахували колись","Ні, не знаю як"]},
+  {id:"fin_costs", type:"single", q:"Чи знаєте свої food cost і labor cost", hint:"частка виручки на продукти (food) і на зарплати (labor)", opts:["Так, обидва","Частково","Ні"]},
+  {id:"fin_varfix", type:"single", q:"Чи розділяєте постійні й змінні витрати", hint:"постійні — оренда, оклади; змінні — продукти, погодинна оплата", opts:["Так","Приблизно","Ні"]},
+  {id:"fin_amort", type:"single", q:"Чи відкладаєте гроші на заміну обладнання (амортизація)", hint:"окремий резерв на випадок поломки техніки", opts:["Так, окремо","Ні"]}
+]},
+
+{ id:"10", title:"Меню і ціни", desc:"Логіка цін і аналіз продажів.", questions:[
+  {id:"menu_top10", type:"text", q:"Топ-10 страв, які найбільше замовляють", hint:"перелічіть 10 позицій, що найчастіше беруть"},
+  {id:"menu_pricing", type:"single", q:"Як формуються ціни у меню", opts:["За food cost + націнка","«Як у конкурентів»","Інтуїтивно","Не переглядались давно"]},
+  {id:"menu_margin", type:"single", q:"Чи знаєте маржу (прибуток) кожної страви", opts:["По кожній","По топових","Ні"]},
+  {id:"menu_salesmix", type:"single", q:"Чи дивитесь, які страви приносять найбільше грошей", hint:"а не просто найбільше замовлень (sales mix)", opts:["Так","Іноді","Ні"]},
+  {id:"menu_lastrev", type:"single", q:"Коли востаннє переглядали меню/ціни", opts:["Менше 3 міс тому","3–12 міс тому","Понад рік тому","Не пам'ятаю"]},
+  {id:"menu_stars", type:"single", q:"Чи знаєте свої «зіркові» й «баластні» страви", hint:"що дає прибуток, а що радше тягне вниз", opts:["Так","Ні"]}
+]},
+
+{ id:"11", title:"Бар і напої", desc:"Алкоголь, пиво, напої — окремий центр прибутку й ризику.", questions:[
+  {id:"bar_offer", type:"multi", q:"Що є в закладі з напоїв та алкоголю", opts:["Повноцінний бар","Пиво розливне","Пиво пляшкове","Вино","Міцний алкоголь","Коктейлі","Тільки безалкогольні"], other:true},
+  {id:"bar_share", type:"single", q:"Приблизна частка напоїв/бару у виручці", opts:["До 10%","10–25%","25–40%","Понад 40%","Не знаю"]},
+  {id:"bar_cost", type:"single", q:"Чи рахуєте собівартість напоїв (beverage cost) і націнку", hint:"як food cost, але для напоїв", opts:["Так, по кожній позиції","Загально","Ні"]},
+  {id:"bar_pour", type:"single", q:"Контроль порцій при розливі", hint:"мірники / порційність проти «на око» (free pour)", opts:["Порційно, мірники","«На око» (free pour)","Немає розливу"]},
+  {id:"bar_stock", type:"single", q:"Облік алкоголю на барі / складі", opts:["Поштучно (пляшки / порції)","Приблизно","Не ведеться"]},
+  {id:"bar_shrink", type:"single", q:"Чи звіряєте продажі напоїв із залишками", hint:"недоливи, безкоштовні порції, «частування»", opts:["Регулярно","Іноді","Ніколи"]},
+  {id:"bar_top", type:"text", q:"Топові позиції бару (напої / коктейлі, що найбільше замовляють)"}
+]},
+
+{ id:"12", title:"Персонал", desc:"Штат, графіки, витрати на працю.", questions:[
+  {id:"hr_cooks", type:"text", q:"Кухарі — скільки осіб", hint:"впишіть кількість"},
+  {id:"hr_waiters", type:"text", q:"Офіціанти — скільки осіб", hint:"впишіть кількість"},
+  {id:"hr_other_staff", type:"text", q:"Хто ще в штаті — перелічіть", hint:"напр.: бармен, адміністратор, прибиральниця, кухонний робітник"},
+  {id:"hr_contract", type:"multi", q:"Форми оформлення персоналу", sensitive:true, hint:"якщо є делікатні нюанси — краще обговорити усно", opts:["Umowa o pracę","Umowa zlecenie","B2B","Волію обговорити усно"], other:true},
+  {id:"hr_schedule", type:"single", q:"Як складаються графіки", opts:["Системно (софт / шаблон)","Вручну щотижня","Стихійно"]},
+  {id:"hr_laborcost", type:"single", q:"Чи рахуєте labor cost (% ФОП від виручки)", opts:["Так","Ні"]},
+  {id:"hr_turnover", type:"single", q:"Плинність персоналу", opts:["Низька","Середня","Висока"]},
+  {id:"hr_standards", type:"single", q:"Чи є посадові інструкції / стандарти сервісу", opts:["Так","Частково","Ні"]}
+]},
+
+{ id:"13", title:"Каса, податки, зобов'язання (PL)", desc:"Стан розрахунків із державою. Без сум.", questions:[
+  {id:"tax_form", type:"single", q:"Форма оподаткування", opts:["Ryczałt","KPiR (skala / liniowy)","CIT (sp. z o.o.)","Не знаю точно"]},
+  {id:"tax_zus", type:"single", q:"ZUS (внески)", sensitive:true, opts:["Платимо вчасно","Бувають затримки","Є заборгованість","Волію обговорити усно"]},
+  {id:"tax_us", type:"single", q:"US (податки)", sensitive:true, opts:["Вчасно","Затримки","Заборгованість","Волію обговорити усно"]},
+  {id:"tax_private", type:"multi", q:"Які теми ви волієте обговорити особисто, а не в анкеті", hint:"позначте — ми просто торкнемось їх у розмові", sensitive:true, opts:["Готівка / каса","Оформлення персоналу","Кредити / борги / лізинг","Податки","Нічого — усе можу зазначити тут"]}
+]},
+
+{ id:"14", title:"Маркетинг і виручка", desc:"Канали залучення й робота з гостями.", questions:[
+  {id:"mkt_channels", type:"multi", q:"Канали залучення гостей", opts:["Google Maps / Business","Instagram","Facebook","TikTok","Агрегатори доставки","Сарафанне радіо","Банкети / B2B"], other:true},
+  {id:"mkt_who", type:"single", q:"Хто веде маркетинг", opts:["Власниця","SMM-підрядник","Ніхто"]},
+  {id:"mkt_gbp", type:"single", q:"Google Business Profile (картка в Google Maps)", opts:["Налаштований і ведеться","Є, але занедбаний","Немає","Не знаю"]},
+  {id:"mkt_reviews", type:"single", q:"Робота з відгуками", opts:["Відповідаємо завжди","Іноді","Ні"]},
+  {id:"mkt_loyalty", type:"single", q:"Чи є робота з повторними гостями / лояльність", opts:["Так","Ні"]}
+]},
+
+{ id:"15", title:"Compliance (PL)", desc:"Юридично-санітарний стан.", questions:[
+  {id:"cmp_sanepid", type:"single", q:"Sanepid / HACCP", opts:["Усе в порядку, документація є","Часткова","Є проблеми","Не знаю"]},
+  {id:"cmp_alcohol", type:"single", q:"Ліцензія на алкоголь (koncesja)", opts:["Є і чинна","В процесі","Немає","Алкоголь не продаємо"]},
+  {id:"cmp_bhp", type:"single", q:"BHP (охорона праці)", opts:["У порядку","Часткова","Ні / не знаю"]},
+  {id:"cmp_rent", type:"single", q:"Оренда приміщення", opts:["Довгостроковий стабільний договір","Короткий / нестабільний","Є ризики (підвищення / розірвання)","Власне приміщення"]},
+  {id:"cmp_zaiks", type:"single", q:"ZAiKS / STOART", hint:"плата за музику в залі", opts:["Платимо","Ні","Не знаю"]},
+  {id:"cmp_rodo", type:"single", q:"RODO / GDPR", hint:"згода на обробку даних гостей", opts:["Оформлено","Ні","Не знаю"]}
+]},
+
+{ id:"16", title:"Ваш погляд", desc:"Найцінніше — те, що бачите тільки ви.", questions:[
+  {id:"view_pain", type:"text", q:"Головна проблема №1 закладу зараз", hint:"своїми словами"},
+  {id:"view_leak", type:"multi", q:"Де, на вашу думку, «зникають гроші»", opts:["Високий food cost","Крадіжки / недостачі","Низька виручка","Дорога оренда / ЗП","Знижки / списання","Не знаю"], other:true},
+  {id:"view_tried", type:"text", q:"Що вже пробували змінити — і не спрацювало"},
+  {id:"view_expect", type:"text", q:"Чого найбільше очікуєте від аудиту"},
+  {id:"view_ready", type:"single", q:"Наскільки готові впроваджувати зміни (навіть болючі)", opts:["Повністю готова","Частково","Залежить від рішення"]},
+  {id:"view_blind", type:"text", q:"Що у власному бізнесі ви НЕ контролюєте або не розумієте", hint:"це допоможе закрити «сліпі зони»"}
+]}
+];
+
+/* ============================ SESSION ============================ */
+const STORAGE_KEY = 'dumka_screening_' + CONFIG.version;
+let SESSION_ID = localStorage.getItem(STORAGE_KEY + '_sid');
+if(!SESSION_ID){ SESSION_ID = 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); localStorage.setItem(STORAGE_KEY + '_sid', SESSION_ID); }
+
+/* ============================ RENDER ============================ */
+const form = document.getElementById('form');
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e){}
+
+SCHEMA.forEach(block=>{
+  const sec=document.createElement('section'); sec.className='block';
+  sec.innerHTML=`<div class="block-head"><span class="idx">${block.id}</span><h2>${block.title}</h2><p>${block.desc}</p></div>`;
+  block.questions.forEach(q=>{
+    const qd=document.createElement('div');
+    qd.className='q'+(q.sensitive?' sensitive':''); qd.dataset.qid=q.id;
+    let html=`<label class="qtitle">${q.q}${q.hint?`<span class="hint">${q.hint}</span>`:''}</label>`;
+    if(q.type==='text'){
+      const v=saved[q.id]?String(saved[q.id]).replace(/"/g,'&quot;'):'';
+      html+=`<textarea data-id="${q.id}" data-type="text">${v}</textarea>`;
+    } else {
+      const it=q.type==='multi'?'checkbox':'radio';
+      (q.opts||[]).forEach(opt=>{
+        const c=isChecked(q,opt);
+        html+=`<label class="opt${c?' checked':''}"><input type="${it}" name="${q.id}" value="${opt.replace(/"/g,'&quot;')}" data-id="${q.id}" data-type="${q.type}"${c?' checked':''}><span>${opt}</span></label>`;
+      });
+      if(q.other){
+        const ov=saved['__other_'+q.id]?String(saved['__other_'+q.id]).replace(/"/g,'&quot;'):'';
+        html+=`<div class="other-inline"><input type="text" placeholder="Інше: ваш варіант…" data-other="${q.id}" value="${ov}"></div>`;
+      }
+    }
+    qd.innerHTML=html; sec.appendChild(qd);
+  });
+  const bf=document.createElement('div'); bf.className='block-submit';
+  bf.innerHTML=`<button type="button" class="btn-block" data-block="${block.id}">Зберегти цей блок ✓</button><span class="block-status" data-status="${block.id}"></span>`;
+  sec.appendChild(bf);
+  form.appendChild(sec);
+});
+function isChecked(q,opt){ const v=saved[q.id]; if(v==null)return false; if(Array.isArray(v))return v.indexOf(opt)>-1; return v===opt; }
+
+/* ============================ STATE ============================ */
+function collect(){
+  const data={};
+  document.querySelectorAll('input[data-type]').forEach(inp=>{
+    const id=inp.dataset.id,t=inp.dataset.type; if(t==='text')return;
+    if(t==='multi'){ if(inp.checked)(data[id]=data[id]||[]).push(inp.value); }
+    else { if(inp.checked)data[id]=inp.value; }
+  });
+  document.querySelectorAll('textarea[data-type="text"]').forEach(t=>{ if(t.value.trim())data[t.dataset.id]=t.value.trim(); });
+  document.querySelectorAll('input[data-other]').forEach(o=>{ if(o.value.trim())data['__other_'+o.dataset.other]=o.value.trim(); });
+  return data;
+}
+function totalQuestions(){ let n=0; SCHEMA.forEach(b=>n+=b.questions.length); return n; }
+function answeredCount(d){ let n=0; SCHEMA.forEach(b=>b.questions.forEach(q=>{ if(d[q.id]!=null||d['__other_'+q.id]!=null)n++; })); return n; }
+function updateProgress(){
+  const d=collect(); localStorage.setItem(STORAGE_KEY,JSON.stringify(d));
+  const pct=Math.round(answeredCount(d)/totalQuestions()*100);
+  document.getElementById('pfill').style.width=pct+'%';
+  document.getElementById('plabel').textContent='Заповнено '+pct+'%';
+}
+form.addEventListener('change',e=>{
+  const opt=e.target.closest('.opt');
+  if(opt&&e.target.type==='radio'){ opt.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('checked')); opt.classList.add('checked'); }
+  else if(opt){ opt.classList.toggle('checked',e.target.checked); }
+  updateProgress();
+});
+form.addEventListener('input',e=>{ if(e.target.matches('textarea, input[data-other]'))updateProgress(); });
+updateProgress();
+
+/* ============================ SEND ============================ */
+function fieldList(){ const f=[]; SCHEMA.forEach(b=>b.questions.forEach(q=>f.push([q.id,q.q]))); return f; }
+function buildPayload(lastBlock){
+  return { meta:{restaurant:CONFIG.restaurant, version:CONFIG.version, session_id:SESSION_ID, submitted_at:new Date().toISOString(), progress:document.getElementById('plabel').textContent, last_block:lastBlock||''}, fields:fieldList(), answers:collect() };
+}
+async function push(lastBlock){
+  const payload=buildPayload(lastBlock);
+  if(!CONFIG.endpoint) return {local:true};
+  try{ await fetch(CONFIG.endpoint,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); return {ok:true}; }
+  catch(e){ return {ok:false}; }
+}
+/* Поблочне збереження — надсилає весь накопичений прогрес (upsert по session_id) */
+form.addEventListener('click', async e=>{
+  const btn=e.target.closest('.btn-block'); if(!btn) return;
+  const id=btn.dataset.block;
+  const status=document.querySelector('.block-status[data-status="'+id+'"]');
+  btn.disabled=true; btn.textContent='Зберігаємо…';
+  const r=await push(id);
+  btn.disabled=false; btn.classList.add('done'); btn.textContent='Збережено ✓';
+  status.textContent = r.local ? 'Збережено на пристрої' : (r.ok ? 'Надіслано ✓' : 'Збережено локально');
+  setTimeout(()=>{ btn.textContent='Зберегти цей блок ✓'; }, 2500);
+});
+
+/* ============================ FINAL ============================ */
+function downloadJson(){
+  const blob=new Blob([JSON.stringify(buildPayload('final'),null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='dumka_anketa_'+CONFIG.version+'_'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+}
+function showThanks(msg){
+  document.getElementById('form').style.display='none';
+  document.querySelector('.progress-bar').style.display='none';
+  document.querySelector('.intro').style.display='none';
+  const t=document.getElementById('thanks'); t.style.display='block';
+  if(msg)document.getElementById('thanks-extra').textContent=msg;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('btnJson').addEventListener('click',downloadJson);
+document.getElementById('btnSubmit').addEventListener('click',async()=>{
+  const btn=document.getElementById('btnSubmit'); btn.disabled=true; btn.textContent='Надсилаємо…';
+  const r=await push('final');
+  if(r.local){
+    downloadJson();
+    const subj=encodeURIComponent('Анкета «Думка» v2 — відповіді');
+    showThanks('Endpoint ще не підключено — відповіді збережено файлом. Надішліть його аудитору'+(CONFIG.fallbackEmail?(' ('+CONFIG.fallbackEmail+')'):'')+'.');
+    if(CONFIG.fallbackEmail)setTimeout(()=>{ location.href='mailto:'+CONFIG.fallbackEmail+'?subject='+subj; },400);
+  } else { showThanks(''); }
+});
+</script>
+</body>
+</html>
