@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Щоденний калькулятор власниці · Думка</title>
+<style>
+/* Думка · канон інтерактивних звітів v2.0
+   Дизайн-система замовника (docx_theme.js + HR-мемо): Arial, брендовий зелений 1F4E2C,
+   насичені сигнальні кольори, світла і темна тема.
+   Структура, блоки та інтерактив — з канону v1.
+   Токени між документами пакета НЕ міняти. */
+
+:root{
+  color-scheme: light;
+  /* ── фірмова палітра (docx_theme.js) ── */
+  --brand:#1F4E2C;
+  --brand-ink:#1F4E2C;
+  --brand-light:#EAF2EC;
+  --page:#F7F8F6;
+  --surface:#FCFCFB;
+  --ink:#0B0B0B;
+  --ink-2:#52514E;
+  --muted:#898781;
+  --grid:#E1E0D9;
+  --baseline:#C3C2B7;
+  --border:rgba(11,11,11,.10);
+  --shadow:0 1px 2px rgba(15,30,20,.05), 0 8px 28px -12px rgba(15,30,20,.12);
+  /* ── сигнальні ── */
+  --good:#0CA30C;
+  --good-text:#006300;
+  --crit:#D03B3B;
+  --crit-soft:#F3C9C9;
+  --warn:#EDA100;
+  --warn-soft:#F6DFAE;
+  /* ── палітра графіків (читається з JS) ── */
+  --c-brand:#1F4E2C;
+  --c-s1:#2F7A4E;
+  --c-s1soft:#8FBF9F;
+  --c-s2:#2A78D6;
+  --c-good:#0CA30C;
+  --c-warn:#EDA100;
+  --c-crit:#D03B3B;
+  --c-neutral:#B4B2A9;
+  --c-sand:#C08A3E;
+  /* ── категорійна палітра: для рядів БЕЗ оцінки «добре/погано» ── */
+  --c-cat1:#1F4E2C;  --c-cat2:#2A78D6;  --c-cat3:#C08A3E;  --c-cat4:#6B4E7D;
+  --c-cat5:#17827F;  --c-cat6:#2F7A4E;  --c-cat7:#7E8A99;  --c-cat8:#8FBF9F;
+  /* ── послідовна шкала: інтенсивність, теплокарти (світле → темне) ── */
+  --c-seq1:#EAF2EC;  --c-seq2:#BFD9C7;  --c-seq3:#8FBF9F;  --c-seq4:#4E8F66;  --c-seq5:#1F4E2C;
+  /* ── розбіжна шкала: оцінки, скоринг (погано → добре) ── */
+  --c-div1:#D03B3B;  --c-div2:#EDA100;  --c-div3:#C9C7BE;  --c-div4:#6FB07F;  --c-div5:#1F4E2C;
+  --c-wash:#EAF2EC;
+  --c-ink:#0B0B0B;
+  --c-line:#E1E0D9;
+  --rail:264px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --brand:#2C6B3E;
+    --brand-ink:#7FBF94;
+    --brand-light:#16281C;
+    --page:#0D0D0D;
+    --surface:#1A1A19;
+    --ink:#FFFFFF;
+    --ink-2:#C3C2B7;
+    --muted:#898781;
+    --grid:#2C2C2A;
+    --baseline:#383835;
+    --border:rgba(255,255,255,.10);
+    --shadow:none;
+    --good-text:#4DBB62;
+    --crit:#E66767;
+    --crit-soft:#4A2424;
+    --warn-soft:#4A3A14;
+    --c-brand:#4D9E6B;
+    --c-s1:#62B585;
+    --c-s1soft:#2F5D45;
+    --c-s2:#5AA0E8;
+    --c-good:#3FBF3F;
+    --c-warn:#F0B429;
+    --c-crit:#E66767;
+    --c-neutral:#55534E;
+    --c-sand:#B08A50;
+    --c-cat1:#4D9E6B;  --c-cat2:#5AA0E8;  --c-cat3:#D2A063;  --c-cat4:#A57FBC;
+    --c-cat5:#3FAFAC;  --c-cat6:#62B585;  --c-cat7:#9BA7B5;  --c-cat8:#9FD2AE;
+    --c-seq1:#16281C;  --c-seq2:#1E4630;  --c-seq3:#2F6B47;  --c-seq4:#4D9E6B;  --c-seq5:#7FBF94;
+    --c-div1:#E66767;  --c-div2:#F0B429;  --c-div3:#55534E;  --c-div4:#62B585;  --c-div5:#7FBF94;
+    --c-wash:#16281C;
+    --c-ink:#FFFFFF;
+    --c-line:#2C2C2A;
+  }
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--page);color:var(--ink);
+  font:16px/1.62 Arial,"Helvetica Neue",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:Arial,"Helvetica Neue",system-ui,sans-serif;font-weight:bold;line-height:1.2;margin:0}
+.num{font-variant-numeric:tabular-nums}
+
+/* ── розкладка ── */
+.wrap{display:flex;align-items:flex-start;max-width:1500px;margin:0 auto}
+.rail{
+  position:sticky;top:0;width:var(--rail);flex:0 0 var(--rail);height:100vh;
+  padding:26px 20px 26px 30px;border-right:1px solid var(--grid);
+  display:flex;flex-direction:column;gap:14px;background:var(--page);z-index:40
+}
+.rail-brand{font-size:19px;font-weight:bold;line-height:1.2;color:var(--brand-ink)}
+.rail-brand span{display:block;font-size:10.5px;font-weight:bold;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.rail-nav{display:flex;flex-direction:column;gap:1px;overflow-y:auto;margin:0 -8px;padding:0 8px;flex:1}
+.rail-nav a{
+  display:flex;gap:9px;align-items:baseline;text-decoration:none;color:var(--ink-2);
+  font-size:13.2px;line-height:1.35;padding:7px 9px;border-radius:6px;transition:background .15s,color .15s
+}
+.rail-nav a i{font-style:normal;font-size:11px;font-weight:bold;color:var(--muted);min-width:14px}
+.rail-nav a:hover{background:var(--brand-light);color:var(--brand-ink)}
+.rail-nav a.on{background:var(--brand);color:#fff}
+.rail-nav a.on i{color:#fff;opacity:.7}
+.rail-foot{font-size:11.5px;color:var(--muted);border-top:1px solid var(--grid);padding-top:12px}
+.main{flex:1;min-width:0;padding:0 clamp(20px,4vw,64px) 110px}
+
+.mobar{display:none;position:sticky;top:0;z-index:60;background:var(--brand);color:#fff;padding:10px 16px;align-items:center;justify-content:space-between;gap:12px}
+.mobar b{font-size:14.5px}
+.mobar button{font:bold 13px Arial,sans-serif;background:#fff;color:var(--brand);border:0;border-radius:6px;padding:7px 12px;cursor:pointer}
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--warn);width:0;z-index:99}
+
+/* ── титул ── */
+.hero{background:var(--brand);color:#fff;border-radius:16px;padding:44px 44px 36px;margin:24px 0 0}
+.eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+.hero h1{font-size:clamp(27px,3.4vw,36px);line-height:1.2;margin:14px 0 0;max-width:26ch}
+.hero .lede{font-size:17px;opacity:.92;max-width:60ch;margin:14px 0 0}
+.hero-meta{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:22px;border-top:1px solid rgba(255,255,255,.25);padding-top:14px;font-size:13px;opacity:.85}
+.chip b{font-weight:bold;font-variant-numeric:tabular-nums}
+
+/* KPI-смуга */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0 0}
+.strip div{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--brand);border-radius:10px;padding:14px 16px 12px;box-shadow:var(--shadow)}
+.strip .k{font-size:12.5px;color:var(--ink-2);line-height:1.4}
+.strip .v{font-size:clamp(20px,2vw,26px);font-weight:bold;margin:4px 0 2px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--brand-ink)}
+.strip .s{font-size:12px;color:var(--muted);line-height:1.45}
+
+/* ── розділи ── */
+section{padding:40px 0 8px;scroll-margin-top:20px}
+.sec-head{display:flex;gap:14px;align-items:baseline;border-top:3px solid var(--brand);padding-top:16px;margin-bottom:22px}
+.sec-num{font-size:13px;font-weight:bold;color:var(--muted);font-variant-numeric:tabular-nums}
+.sec-head h2{font-size:clamp(22px,2.4vw,27px);color:var(--brand-ink);max-width:26ch;line-height:1.25}
+h3{font-size:18.5px;margin:34px 0 4px;color:var(--ink);max-width:38ch}
+h4{font-size:16px;margin:26px 0 8px}
+p{margin:12px 0;max-width:72ch}
+.main a{color:var(--brand-ink)}
+strong{color:var(--ink);font-weight:bold}
+.source{font-size:12.5px;color:var(--muted);margin:6px 0 0;max-width:72ch}
+
+/* ключове речення */
+.key{
+  margin:22px 0;padding:16px 20px;background:var(--brand-light);
+  border:1px solid var(--border);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;
+  font-size:17px;line-height:1.5;max-width:72ch;color:var(--ink)
+}
+.key.g{border-left-color:var(--good)}
+.key.r{border-left-color:var(--crit)}
+
+ul,ol{max-width:72ch;padding-left:26px;margin:0 0 14px}
+li{margin:7px 0}
+ul.act{list-style:none;padding:0}
+ul.act li{padding-left:92px;position:relative}
+ul.act li::before{
+  content:attr(data-l);position:absolute;left:0;top:1px;box-sizing:border-box;
+  font-size:10.5px;font-weight:bold;letter-spacing:.08em;line-height:1.7;
+  text-transform:uppercase;color:#fff;background:var(--brand);
+  padding:2px 6px;border-radius:4px;width:74px;text-align:center;white-space:nowrap
+}
+
+/* ── фігури ── */
+figure{margin:22px 0 30px;padding:20px 22px 16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
+figcaption{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.fig-t{font-size:14.5px;font-weight:bold}
+.fig-s{font-size:12.5px;color:var(--ink-2);margin:2px 0 12px;max-width:80ch}
+.fig-body{margin:0}
+.toggles{display:flex;gap:6px;flex-wrap:wrap}
+.toggles button{
+  border:1px solid var(--border);background:var(--surface);color:var(--ink-2);
+  border-radius:999px;font:12.5px Arial,sans-serif;padding:5px 12px;cursor:pointer;transition:.15s
+}
+.toggles button:hover{border-color:var(--brand);color:var(--brand-ink)}
+.toggles button.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:bold}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{font-family:Arial,system-ui,sans-serif}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:var(--ink-2);margin:10px 0 0}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:7px;vertical-align:-2px}
+
+/* тултип */
+#tip{
+  position:fixed;pointer-events:none;opacity:0;transform:translate(-50%,-118%);z-index:120;
+  background:var(--surface);color:var(--ink);border:1px solid var(--baseline);
+  border-radius:8px;padding:8px 11px;font-size:12.5px;line-height:1.5;
+  box-shadow:0 4px 18px rgba(0,0,0,.18);max-width:300px;transition:opacity .12s
+}
+#tip b{font-weight:bold;color:var(--brand-ink);font-variant-numeric:tabular-nums}
+
+/* підписи всередині SVG */
+.ax{font-size:11.5px;fill:var(--muted)}
+.axb{font-size:12.5px;fill:var(--ink-2);font-weight:bold}
+.val{font-size:12.5px;font-weight:bold;fill:var(--ink)}
+.thr{font-size:11.5px;font-weight:bold;fill:var(--warn)}
+.grid{stroke:var(--grid);stroke-width:1}
+.zero{stroke:var(--baseline);stroke-width:1.5}
+.thrline{stroke:var(--warn);stroke-width:2;stroke-dasharray:5 4}
+.bar{transition:opacity .15s}
+.bar:hover{opacity:.8;cursor:default}
+
+/* ── таблиці ── */
+.tw{overflow-x:auto;margin:18px 0 6px;border-radius:10px;border:1px solid var(--border);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;background:var(--surface);font-size:14px;min-width:520px}
+th{background:var(--brand);color:#fff;text-align:left;padding:9px 12px;font-size:13px;line-height:1.35;vertical-align:bottom;font-weight:bold}
+td{padding:8px 12px;border-top:1px solid var(--grid);vertical-align:top;line-height:1.45}
+tbody tr:nth-child(even) td{background:var(--brand-light)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pos{color:var(--good-text);font-weight:bold}
+.neg{color:var(--crit);font-weight:bold}
+tr.total td{font-weight:bold;border-top:2px solid var(--brand);background:var(--brand-light)}
+
+/* ── картки ── */
+.cards{display:grid;gap:12px;margin:18px 0}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow)}
+.card .lab{font-size:12.5px;color:var(--ink-2);line-height:1.4}
+.card .big{font-size:24px;font-weight:bold;margin:4px 0 4px;line-height:1.1;color:var(--brand-ink);font-variant-numeric:tabular-nums}
+.card .big.r{color:var(--crit)}
+.card p{font-size:13px;color:var(--ink-2);margin:0;max-width:none}
+.card h4{margin:0 0 6px;font-size:15px;color:var(--brand-ink)}
+
+.vc{border-left:4px solid var(--crit)}
+.vc.ok{border-left-color:var(--good)}
+.vc.wait{border-left-color:var(--warn)}
+.badge{display:inline-block;font-size:10.5px;font-weight:bold;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-bottom:8px}
+.b-no{background:var(--crit-soft);color:var(--crit)}
+.b-wait{background:var(--warn-soft);color:#8A6318}
+.b-yes{background:var(--brand-light);color:var(--brand-ink)}
+
+/* акордеон */
+.acc{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);margin:18px 0;box-shadow:var(--shadow)}
+.acc details{border-top:1px solid var(--grid)}
+.acc details:first-child{border-top:0}
+.acc summary{cursor:pointer;padding:12px 18px;font-weight:bold;font-size:14.5px;display:flex;gap:12px;align-items:center;list-style:none;transition:background .15s}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary:hover{background:var(--brand-light)}
+.acc summary::before{content:"+";color:var(--brand-ink);font-size:17px;font-weight:bold;width:14px}
+.acc details[open] summary::before{content:"–"}
+.acc details[open] summary{background:var(--brand-light)}
+.acc .body{padding:2px 18px 16px 44px;font-size:14px;color:var(--ink-2)}
+.acc .body p{margin:0;max-width:none}
+
+/* сітка документів */
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:12px;margin:18px 0}
+.doc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;transition:.18s;box-shadow:var(--shadow)}
+.doc:hover{transform:translateY(-2px);border-color:var(--brand)}
+.doc .no{font-size:11px;color:var(--muted);font-weight:bold}
+.doc .fmt{position:absolute;top:13px;right:14px;font-size:9.6px;font-weight:bold;letter-spacing:.06em;padding:2.5px 7px;border-radius:4px;background:var(--grid);color:var(--ink-2)}
+.doc .fmt.x{background:var(--brand-light);color:var(--brand-ink)}
+.doc h4{margin:6px 0 6px;font-size:15px;line-height:1.25;color:var(--ink)}
+.doc p{font-size:13px;color:var(--ink-2);margin:0;max-width:none}
+
+/* стрічка часу */
+.tl{margin:22px 0}
+.tl-item{display:grid;grid-template-columns:120px 1fr;gap:22px;padding:16px 0;border-top:1px solid var(--grid);align-items:start}
+.tl-item:last-child{border-bottom:1px solid var(--grid)}
+.tl-when{font-size:14px;font-weight:bold;color:var(--brand-ink)}
+.tl-when em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);font-weight:normal;margin-top:3px}
+.tl-what{font-size:14.5px}
+.tl-what .why{font-size:13px;color:var(--muted);margin-top:6px}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-size:12.5px;background:var(--brand-light);border:1px solid var(--border);border-radius:999px;padding:4px 11px}
+
+/* калькулятор */
+.calc{background:var(--brand);color:#fff;border-radius:12px;padding:22px 24px;margin:22px 0}
+.calc h4{color:#fff;margin:0 0 4px;font-size:18px}
+.calc .hint{font-size:13px;color:rgba(255,255,255,.8);margin:0 0 16px;max-width:none}
+.calc-row{display:flex;gap:26px;flex-wrap:wrap;align-items:center}
+.calc-slider{flex:1 1 320px}
+.calc input[type=range]{width:100%;accent-color:var(--warn);height:22px;cursor:pointer}
+.calc .rng{display:flex;justify-content:space-between;font-size:11.5px;color:rgba(255,255,255,.72);font-variant-numeric:tabular-nums}
+.calc-out{flex:1 1 240px;display:flex;gap:24px;flex-wrap:wrap}
+.calc-out div .k{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.72)}
+.calc-out div .v{font-size:25px;font-weight:bold;color:#fff;margin-top:3px;font-variant-numeric:tabular-nums}
+.calc-out div .v.warn{color:#F6DFAE}
+.calc-out div .v.bad{color:#F3C9C9}
+.calc .cur{font-size:29px;font-weight:bold;color:#fff;font-variant-numeric:tabular-nums}
+.calc .note{font-size:12.5px;color:rgba(255,255,255,.72);margin:14px 0 0;max-width:70ch}
+
+footer{margin-top:70px;padding-top:16px;border-top:1px solid var(--grid);font-size:12.5px;color:var(--muted);max-width:72ch}
+
+@media (max-width:1080px){
+  .strip{grid-template-columns:repeat(2,1fr)}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .hero{padding:32px 30px 28px}
+}
+@media (max-width:900px){
+  .rail{display:none}
+  .mobar{display:flex}
+  .main{padding:0 18px 80px}
+  .hero{margin-top:16px;border-radius:12px;padding:28px 24px 24px}
+  .g3,.g2{grid-template-columns:1fr}
+  .tl-item{grid-template-columns:1fr;gap:8px}
+  .key{font-size:16px;padding:14px 16px}
+}
+@media (max-width:560px){
+  .g4,.strip{grid-template-columns:1fr}
+}
+@media print{
+  .rail,.mobar,.toggles,.progress{display:none!important}
+  body{background:#fff;color:#000;font-size:10.5pt}
+  .main{padding:0}
+  .hero{background:#fff;color:#000;border:2px solid var(--brand);border-radius:0;padding:24px 0}
+  .hero h1,.eyebrow,.hero .lede,.hero-meta{color:#000;opacity:1}
+  .hero-meta{border-top-color:#999}
+  section{page-break-inside:auto;padding-top:20px}
+  figure,.card,.tw,.acc,.doc{page-break-inside:avoid;box-shadow:none}
+  .calc{background:#fff;color:#000;border:1px solid #999}
+  .calc h4,.calc-out div .v,.calc .cur,.calc .hint,.calc .note,.calc .rng{color:#000}
+  a{color:#000;text-decoration:none}
+}
+
+/* ── v2.1: заголовки в один рядок, текст на підложці ── */
+.sec-head h2{max-width:none}
+h3{max-width:none}
+.txt{background:var(--brand-light);border:1px solid var(--border);border-radius:12px;
+  padding:18px 28px;margin:22px auto;max-width:820px}
+.txt p{margin:0;max-width:none;font-size:15px;line-height:1.66;color:var(--ink)}
+.key{margin:22px auto;max-width:820px;border-radius:10px;box-shadow:var(--shadow)}
+@media print{.txt{box-shadow:none}}
+
+/* ── v2.1: статуси-значки ── */
+.st{display:inline-block;vertical-align:-1px;margin-right:5px}
+.st-f{width:11px;height:11px;border-radius:50%;background:var(--c-brand)}
+.st-r{width:11px;height:11px;border-radius:3px;background:var(--c-s2)}
+.st-o{width:0;height:0;border-left:6.5px solid transparent;border-right:6.5px solid transparent;border-bottom:11px solid var(--c-sand)}
+.st-d{width:9px;height:9px;background:var(--c-warn);transform:rotate(45deg);margin:1px 7px 1px 2px}
+.st-p{width:11px;height:11px;border-radius:50%;border:2.5px solid var(--c-s2);background:transparent}
+td.stc{white-space:nowrap;text-align:center}
+td.expl{font-size:12.6px;color:var(--ink-2);line-height:1.45;min-width:200px}
+.stleg{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:12.3px;color:var(--ink-2);margin:8px 2px 0}
+.stleg span{display:flex;align-items:center;gap:7px}
+.stleg .st{margin:0}
+
+/* ── v2.1: фінальний блок рекомендацій ── */
+.prio-hero{background:var(--brand);color:#fff;border-radius:16px;padding:30px 32px 26px;margin:22px 0}
+.prio-hero .ph-k{font-size:12px;font-weight:bold;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+.prio-hero .ph-t{color:#fff;font-size:22px;margin:8px 0 0;max-width:none}
+.prio-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+.pcard{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:18px 20px 16px}
+.pcard .no{font-size:11px;font-weight:bold;letter-spacing:.1em;opacity:.75}
+.pcard h4{color:#fff;font-size:17px;margin:7px 0 8px}
+.pcard .eff{font-size:22px;font-weight:bold;font-variant-numeric:tabular-nums;color:#F6DFAE}
+.pcard p{color:rgba(255,255,255,.85);font-size:13px;line-height:1.5;margin:8px 0 0;max-width:none}
+.finale{background:var(--brand);color:#fff;border-radius:16px;padding:32px 38px;margin:28px 0 10px;font-size:20px;line-height:1.55;max-width:none}
+.finale b{color:#F6DFAE}
+@media (max-width:900px){.prio-grid{grid-template-columns:1fr}.finale{font-size:17px;padding:24px 26px}}
+@media print{.prio-hero,.finale{background:#fff;color:#000;border:2px solid var(--brand)}
+.pcard{border-color:#999}.pcard h4,.pcard p,.pcard .eff,.prio-hero .ph-t,.finale b{color:#000}}
+/* ── Dashboard_Dnia: стилі застосунку поверх канону v2.1 (токени НЕ міняються) ── */
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:20px 22px;margin:18px 0;box-shadow:var(--shadow)}
+.form-card h3{margin:0 0 12px;font-size:16.5px;color:var(--brand-ink)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px 16px}
+.frow label{display:block;font-size:12.5px;color:var(--ink-2);margin-bottom:4px;font-weight:bold}
+.frow input,.frow select{width:100%;padding:9px 11px;border:1px solid var(--grid);border-radius:8px;
+  background:var(--page);color:var(--ink);font:15px Arial,sans-serif;font-variant-numeric:tabular-nums}
+.frow input:focus{outline:2px solid var(--brand);outline-offset:0;border-color:var(--brand)}
+.chk{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink-2);cursor:pointer;user-select:none}
+.chk input{width:17px;height:17px;accent-color:var(--brand);cursor:pointer}
+
+/* рядки праці */
+.lwrap{overflow-x:auto}
+.lrows{min-width:430px}
+.lrows{width:100%;border-collapse:collapse;font-size:14px}
+.lrows th{background:transparent;color:var(--ink-2);font-size:11.5px;text-transform:uppercase;
+  letter-spacing:.06em;padding:2px 8px 6px 0;border:0;text-align:left}
+.lrows td{padding:4px 8px 4px 0;border:0;vertical-align:middle}
+.lrows input{width:100%;padding:8px 10px;border:1px solid var(--grid);border-radius:8px;
+  background:var(--page);color:var(--ink);font:14.5px Arial,sans-serif;font-variant-numeric:tabular-nums}
+.lrows input:focus{outline:2px solid var(--brand);outline-offset:0}
+.lrows .sum{font-weight:bold;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right;min-width:86px}
+.lrows .del{background:none;border:0;color:var(--muted);font-size:17px;cursor:pointer;padding:2px 6px;border-radius:6px}
+.lrows .del:hover{color:var(--crit);background:var(--crit-soft)}
+.addrow{background:none;border:1px dashed var(--grid);color:var(--brand-ink);border-radius:8px;
+  font:bold 13px Arial,sans-serif;padding:7px 14px;cursor:pointer;margin-top:6px}
+.addrow:hover{border-color:var(--brand);background:var(--brand-light)}
+
+/* кнопки */
+.btn{font:bold 14.5px Arial,sans-serif;border-radius:9px;padding:11px 22px;cursor:pointer;transition:.15s}
+.btn.primary{background:var(--brand);color:#fff;border:1px solid var(--brand)}
+.btn.primary:hover{filter:brightness(1.12)}
+.btn.ghost{background:var(--surface);color:var(--brand-ink);border:1px solid var(--grid)}
+.btn.ghost:hover{border-color:var(--brand);background:var(--brand-light)}
+.btn.danger{background:var(--surface);color:var(--crit);border:1px solid var(--grid)}
+.btn.danger:hover{border-color:var(--crit);background:var(--crit-soft)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.savemsg{font-size:13px;color:var(--good-text);font-weight:bold;opacity:0;transition:opacity .2s}
+.savemsg.show{opacity:1}
+
+/* результат дня */
+.res-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:18px 22px;margin:18px 0;box-shadow:var(--shadow)}
+.res-line{display:flex;justify-content:space-between;gap:14px;align-items:baseline;
+  padding:7px 2px;border-top:1px solid var(--grid);font-size:14.5px}
+.res-line:first-child{border-top:0}
+.res-line .rl{color:var(--ink-2)}
+.res-line .rv{font-weight:bold;font-variant-numeric:tabular-nums;white-space:nowrap}
+.res-line.lvl{background:var(--brand-light);margin:0 -10px;padding:9px 12px;border-radius:8px;
+  border-top:2px solid var(--brand);font-size:15.5px}
+.res-line.lvl .rl{color:var(--ink);font-weight:bold}
+.res-line.big .rv{font-size:21px}
+.res-line .rv.pos{color:var(--good-text)}
+.res-line .rv.neg{color:var(--crit)}
+.res-sub{font-size:12px;color:var(--muted);margin:2px 0 0}
+
+/* попередження */
+.alert{margin:12px 0;padding:13px 16px;border-radius:10px;font-size:14px;line-height:1.5;
+  border:1px solid var(--border);border-left:4px solid var(--muted);background:var(--surface)}
+.alert.crit{border-left-color:var(--crit);background:var(--crit-soft);color:var(--ink)}
+.alert.warn{border-left-color:var(--warn);background:var(--warn-soft);color:var(--ink)}
+.alert.ok{border-left-color:var(--good);background:var(--brand-light)}
+.alert b{font-variant-numeric:tabular-nums}
+
+/* таблиця місяця */
+.daytable td{font-variant-numeric:tabular-nums}
+.daytable tr.flagged td{background:var(--crit-soft)!important}
+.daytable td .fl{font-size:11px;font-weight:bold;color:var(--crit)}
+.daytable a.edit{cursor:pointer;text-decoration:underline}
+.emptymsg{text-align:center;color:var(--muted);font-size:14px;padding:26px 10px}
+
+/* параметри */
+.ptable input{width:110px;padding:7px 9px;border:1px solid var(--grid);border-radius:7px;
+  background:var(--page);color:var(--ink);font:14px Arial,sans-serif;text-align:right;
+  font-variant-numeric:tabular-nums}
+.ptable input:focus{outline:2px solid var(--brand);outline-offset:0}
+
+@media (max-width:700px){
+  .lrows th:nth-child(1),.lrows td:nth-child(1){min-width:110px}
+  .res-line{font-size:13.5px}
+}
+@media print{
+  .form-card,.btnrow,.alert.ok{display:none!important}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="prog"></div>
+<div id="tip"></div>
+
+<div class="mobar">
+  <b>Калькулятор дня · «Думка»</b>
+  <button id="mobtn" aria-expanded="false">Розділи</button>
+</div>
+
+<div class="wrap">
+<aside class="rail">
+  <div class="rail-brand"><span>Щоденний калькулятор власниці</span>Ресторан «Думка»</div>
+  <nav class="rail-nav" id="nav">
+    <a href="#s1"><i>1</i>Ввід дня і результат</a>
+    <a href="#s2"><i>2</i>Картина місяця</a>
+    <a href="#s3"><i>3</i>Куди пішли гроші</a>
+    <a href="#s4"><i>4</i>Параметри моделі</a>
+    <a href="#s5"><i>5</i>Збереження даних</a>
+    <a href="#s6"><i>6</i>Як це рахується</a>
+  </nav>
+  <div class="rail-foot">Dashboard v1 · 2026-08-12<br>Ведеться щодня · PLN<br>Конфіденційно (NDA)</div>
+</aside>
+
+<main class="main">
+
+<header class="hero">
+  <div class="eyebrow">Інструмент щоденного контролю · трек Т12</div>
+  <h1>Кожен вечір видно одразу: день заробив — чи доплатив за роботу</h1>
+  <p class="lede">Три хвилини ввечері: виручка дня, години й ставки людей — і калькулятор показує
+  чесний результат дня після продуктів, праці, постійних платежів і кредиту. Дні складаються
+  в картину місяця автоматично.</p>
+  <div class="hero-meta">
+    <span class="chip">Валюта <b>PLN, каса brutto</b></span>
+    <span class="chip">Фудкост <b id="hm-fc">—</b></span>
+    <span class="chip">Постійні <b id="hm-fix">—</b></span>
+  </div>
+  <div class="strip">
+    <div><div class="k">Виручка місяця</div><div class="v" id="k-rev">—</div><div class="s" id="k-rev-s">днів заповнено: 0</div></div>
+    <div><div class="k">Результат місяця (з кредитом)</div><div class="v" id="k-res">—</div><div class="s" id="k-res-s">після продуктів, праці, постійних</div></div>
+    <div><div class="k">Середній день</div><div class="v" id="k-avg">—</div><div class="s" id="k-avg-s">поріг беззбитковості — з параметрів</div></div>
+    <div><div class="k">Днів у мінусі</div><div class="v" id="k-neg">—</div><div class="s" id="k-neg-s">результат дня нижче нуля</div></div>
+  </div>
+</header>
+
+<section id="s1">
+  <div class="sec-head"><span class="sec-num">01</span><h2>Ввід дня і результат</h2></div>
+
+  <div class="txt"><p>Заповнюйте ввечері, по касі дня. Виручка — одна цифра (вся каса за день).
+  Люди — тільки ті, кому ви реально платите: години і ставка кожного. Безкоштовні (ви самі,
+  практиканти) — окремо: їм не платиться, але калькулятор покаже, скільки коштувала б ця праця.</p></div>
+
+  <div class="form-card">
+    <h3>Крок 1 · День і виручка</h3>
+    <div class="fgrid">
+      <div class="frow"><label for="f-date">Дата</label><input type="date" id="f-date" autocomplete="off"></div>
+      <div class="frow"><label for="f-rev" id="f-rev-lab">Виручка дня, zł (уся каса)</label><input type="number" id="f-rev" min="0" step="0.01" placeholder="0,00" autocomplete="off"></div>
+      <div class="frow" id="f-bar-wrap" style="display:none"><label for="f-bar">з неї бар (алкоголь, напої), zł</label><input type="number" id="f-bar" min="0" step="0.01" placeholder="0,00" autocomplete="off"></div>
+      <div class="frow" style="align-self:end"><label class="chk"><input type="checkbox" id="f-split"> порахувати бар окремо (фудкост бару інший)</label></div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h3>Крок 2 · Кому заплатили за день</h3>
+    <div class="lwrap"><table class="lrows" id="t-zal">
+      <thead><tr><th style="width:34%">Зал</th><th>Годин</th><th>Ставка, zł/год</th><th style="text-align:right">Разом</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <button class="addrow" data-add="zal">+ додати людину в зал</button>
+    <div class="lwrap" style="margin-top:16px"><table class="lrows" id="t-kuh">
+      <thead><tr><th style="width:34%">Кухня</th><th>Годин</th><th>Ставка, zł/год</th><th style="text-align:right">Разом</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <button class="addrow" data-add="kuh">+ додати людину на кухню</button>
+  </div>
+
+  <div class="form-card">
+    <h3>Крок 3 · Безкоштовні (ви, практиканти)</h3>
+    <div class="lwrap"><table class="lrows" id="t-free">
+      <thead><tr><th style="width:34%">Хто</th><th>Годин</th><th style="text-align:right">Коштувало б (22 zł/год)</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <button class="addrow" data-add="free">+ додати безкоштовного</button>
+  </div>
+
+  <div class="res-card">
+    <h3 style="margin:0 0 10px;font-size:16.5px;color:var(--brand-ink)">Результат дня <span id="r-date" style="color:var(--muted);font-weight:normal;font-size:14px"></span></h3>
+    <div id="r-lines"></div>
+    <div id="r-alerts"></div>
+    <div class="btnrow">
+      <button class="btn primary" id="b-save">Зберегти день</button>
+      <button class="btn ghost" id="b-clearform">Очистити форму</button>
+      <span class="savemsg" id="save-msg">✓ День збережено</span>
+    </div>
+  </div>
+</section>
+
+<section id="s2">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Картина місяця</h2></div>
+
+  <div class="txt"><p>Кожен збережений день лягає сюди автоматично. Червоні бари — дні, що не
+  покрили свою частку витрат. Позначка «склад!» — день у мінусі, на якому працювало більше
+  двох оплачуваних людей: перше, що варто перевірити, — чи потрібен був такий склад зміни.</p></div>
+
+  <div class="form-card" style="display:flex;gap:16px;align-items:end;flex-wrap:wrap">
+    <div class="frow" style="min-width:190px"><label for="f-month">Місяць</label><input type="month" id="f-month" autocomplete="off"></div>
+    <div class="res-sub" id="m-note" style="margin-bottom:10px"></div>
+  </div>
+
+  <figure>
+    <figcaption>
+      <span class="fig-t">Дні місяця</span>
+      <div class="toggles" id="t-mchart"><button class="on" data-m="res">Результат дня</button><button data-m="rev">Виручка проти беззбитковості</button></div>
+    </figcaption>
+    <div class="fig-s" id="c-days-sub">Результат кожного дня після продуктів, праці, постійних і кредиту.</div>
+    <div class="fig-body"><div id="c-days"><div class="emptymsg">Ще немає збережених днів у цьому місяці.</div></div></div>
+  </figure>
+
+  <div class="tw"><table class="daytable" id="m-table">
+    <thead><tr>
+      <th>День</th><th class="n">Виручка</th><th class="n">Продукти</th><th class="n">Праця</th>
+      <th class="n">Люди</th><th class="n">Контрибуція</th><th class="n">Результат дня</th>
+      <th class="n">Якби платили всім</th><th></th>
+    </tr></thead>
+    <tbody></tbody>
+  </table></div>
+  <p class="source">Результат дня = виручка − продукти − праця − постійні на день − кредит на день.
+  «Якби платили всім» — той самий результат мінус безкоштовні години по 22&nbsp;zł/год.</p>
+</section>
+
+<section id="s3">
+  <div class="sec-head"><span class="sec-num">03</span><h2>Куди пішли гроші місяця</h2></div>
+
+  <div class="txt"><p>Та сама картина місяця — одним поглядом: скільки з каси забрали продукти,
+  скільки праця, скільки постійні платежі з кредитом, і що лишилося (або чого не вистачило).
+  Постійні тут нараховані тільки за заповнені дні — повний місяць видно, коли заповнені всі
+  робочі дні.</p></div>
+
+  <figure>
+    <figcaption><span class="fig-t">Каса місяця і її складові</span></figcaption>
+    <div class="fig-s">Зелена смуга — вся виручка; нижче — на що вона пішла.</div>
+    <div class="fig-body"><div id="c-struct"><div class="emptymsg">Ще немає збережених днів.</div></div></div>
+  </figure>
+
+  <div class="tw"><table id="m-totals">
+    <thead><tr><th>Показник за заповнені дні</th><th class="n">zł</th><th class="n">% каси</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+  <p class="source">Безкоштовна праця в підсумок місяця не віднімається — вона показана окремим
+  довідковим рядком «якби платили всім».</p>
+</section>
+
+<section id="s4">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Параметри моделі</h2></div>
+
+  <div class="txt"><p>Ці цифри вже заповнені з фінансової моделі аудиту — міняти їх щодня не
+  треба. Коли щось зміниться насправді (нова оренда, точний фудкост після проробок, інша
+  кількість робочих днів) — поправте одну клітинку, і всі дні та місяці перерахуються самі.</p></div>
+
+  <div class="form-card">
+    <h3>Ставки й частки</h3>
+    <div class="fgrid">
+      <div class="frow"><label for="p-fck">Фудкост кухні+залу, % виручки</label><input type="number" id="p-fck" min="0" max="100" step="0.1" autocomplete="off"></div>
+      <div class="frow"><label for="p-fcb">Фудкост бару, % (якщо бар окремо)</label><input type="number" id="p-fcb" min="0" max="100" step="0.1" autocomplete="off"></div>
+      <div class="frow"><label for="p-free">Ставка безкоштовних, zł/год</label><input type="number" id="p-free" min="0" step="0.5" autocomplete="off"></div>
+      <div class="frow"><label for="p-days">Робочих днів у місяці</label><input type="number" id="p-days" min="1" max="31" step="1" autocomplete="off"></div>
+    </div>
+  </div>
+
+  <div class="tw"><table class="ptable">
+    <thead><tr><th>Постійні витрати, zł на місяць</th><th class="stc">Статус</th><th class="n">zł/міс</th></tr></thead>
+    <tbody id="p-fix"></tbody>
+  </table></div>
+  <div class="stleg">
+    <span><i class="st st-f"></i>факт з документів</span>
+    <span><i class="st st-d"></i>обережне допущення</span>
+    <span><i class="st st-p"></i>параметр — можна міняти</span>
+  </div>
+  <div id="p-sums" style="margin-top:14px"></div>
+  <p class="source">Суми — з фінансової моделі аудиту (період січень–липень 2026, помісячна
+  величина). Кредит показаний двома рядками: відсотки — це витрата місяця, тіло рати — повернення
+  боргу, тому в результаті дня воно йде окремим рядком після основного підсумку.</p>
+</section>
+
+<section id="s5">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Збереження даних</h2></div>
+
+  <div class="txt"><p>Усі введені дні зберігаються прямо в цьому браузері, на цьому пристрої —
+  нікуди в інтернет вони не йдуть. Це означає дві речі: заповнюйте калькулятор на одному й тому
+  самому пристрої, і раз на тиждень натискайте «Зберегти копію» — файл-копія захистить дані,
+  якщо браузер буде почищено.</p></div>
+
+  <div class="key r"><strong>Раз на тиждень — «Зберегти копію».</strong> Якщо почистити історію
+  браузера, введені дні зникнуть. Файл-копія повертає все одним натисканням «Відновити з копії».</div>
+
+  <div class="form-card">
+    <div class="btnrow" style="margin-top:0">
+      <button class="btn primary" id="b-export">Зберегти копію (файл)</button>
+      <button class="btn ghost" id="b-import">Відновити з копії</button>
+      <button class="btn ghost" id="b-csv">Таблиця для Excel (CSV)</button>
+      <button class="btn danger" id="b-wipe">Стерти всі дані</button>
+      <input type="file" id="f-import" accept=".json" style="display:none">
+    </div>
+    <div class="res-sub" id="io-msg" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<section id="s6">
+  <div class="sec-head"><span class="sec-num">06</span><h2>Як це рахується і де межі</h2></div>
+
+  <div class="txt"><p>Калькулятор рахує день у п'ять кроків: виручка → мінус продукти (фудкост)
+  → мінус оплачена праця → це контрибуція дня → мінус частка постійних платежів → результат дня
+  → і окремо мінус частка кредитної рати. Постійні платежі місяця поділені на кількість робочих
+  днів — так кожен день несе свою частку оренди, ZUS і рахунків, навіть якщо платіжка прийде
+  в кінці місяця.</p></div>
+
+  <div class="key"><strong>Це порядок цифр, а не бухгалтерія.</strong> Фудкост і постійні
+  платежі — оцінки з фінансової моделі, точні рецептури ще в роботі, тому реальна собівартість
+  може бути трохи іншою. Калькулятор чесно показує напрямок і масштаб: заробив день чи ні, і на чому саме.</div>
+
+  <div class="acc">
+    <details>
+      <summary>Звідки взяті цифри параметрів</summary>
+      <div class="body"><p>Параметри (постійні витрати, фудкост, пороги) завантажуються окремим
+      файлом від консультанта — цифри в ньому взяті з фінансової моделі аудиту. Після завантаження
+      вони живуть лише у браузері вашого пристрою; на сайті жодних цифр закладу немає.</p></div>
+    </details>
+    <details>
+      <summary>Чому «більше 2 людей у мінусовий день» підсвічується</summary>
+      <div class="body"><p>Розбір реальних днів показав: коли виручка слабка, найбільша керована
+      витрата дня — це склад зміни. Мінусовий день із трьома-чотирма оплачуваними людьми майже
+      завжди означає, що склад був більший, ніж потребував потік гостей.</p></div>
+    </details>
+    <details>
+      <summary>Що калькулятор свідомо НЕ робить</summary>
+      <div class="body"><p>Не рахує податки і VAT окремо (все сидить у середніх постійних),
+      не замінює книги бухгалтера, не знає реальний фудкост кожної страви — це з'явиться з новою
+      POS-системою і оновленими рецептурами. Тоді параметри просто уточнюються, і картина стане
+      точнішою — без переробки калькулятора.</p></div>
+    </details>
+  </div>
+
+  <footer>Ресторан «Думка» · щоденний калькулятор власниці v1 · зібрано 12.08.2026 в межах
+  антикризового аудиту (трек Т12 «Автоматизація»). Дані зберігаються локально в браузері.
+  Конфіденційно (NDA).</footer>
+</section>
+
+</main>
+</div>
+<script>
+/* Думка · бібліотека візуалів для інтерактивних звітів, v2.0
+   Дизайн-система замовника: Arial, брендовий зелений, насичені сигнальні кольори.
+   Вставляється як <script> всередину єдиного HTML-файлу (без CDN, без залежностей).
+   Кольори НЕ зашиті: читаються з CSS-змінних --c-*, тому графіки самі
+   перемальовуються під темну тему.
+   Публічний API: D.hbars, D.vbars, D.donut, D.stack, D.scale, D.rangebars,
+                  D.dots, D.timeline, D.waterfall, D.tiles, D.calc, D.nav,
+                  D.fmt, D.onTheme, D.C */
+var D=(function(){
+"use strict";
+
+/* Палітра — жива: об'єкт мутується на місці, тому C.green усередині функції
+   малювання завжди дає актуальний колір теми. */
+/* Ключі палітри мають по два імені: канонічні v2 (brand/warn/crit/neutral)
+   і успадковані з v1 (green/brass/clay/grey). Це один і той самий колір. */
+var C={};
+var DEF={green:"#1F4E2C",greenS:"#2F7A4E",greenD:"#8FBF9F",blue:"#2A78D6",good:"#0CA30C",
+         brass:"#EDA100",clay:"#D03B3B",grey:"#B4B2A9",sand:"#C08A3E",
+         ink:"#0B0B0B",mute:"#898781",line:"#E1E0D9",wash:"#EAF2EC",
+         /* категорійні — для рядів БЕЗ оцінки «добре/погано» */
+         cat1:"#1F4E2C",cat2:"#2A78D6",cat3:"#C08A3E",cat4:"#6B4E7D",
+         cat5:"#17827F",cat6:"#2F7A4E",cat7:"#7E8A99",cat8:"#8FBF9F",
+         /* послідовна — інтенсивність, теплокарти */
+         seq1:"#EAF2EC",seq2:"#BFD9C7",seq3:"#8FBF9F",seq4:"#4E8F66",seq5:"#1F4E2C",
+         /* розбіжна — скоринг, оцінки: погано → добре */
+         div1:"#D03B3B",div2:"#EDA100",div3:"#C9C7BE",div4:"#6FB07F",div5:"#1F4E2C"};
+var VAR={green:"--c-brand",greenS:"--c-s1",greenD:"--c-s1soft",blue:"--c-s2",good:"--c-good",
+         brass:"--c-warn",clay:"--c-crit",grey:"--c-neutral",sand:"--c-sand",
+         ink:"--c-ink",mute:"--c-mute",line:"--c-line",wash:"--c-wash"};
+(function(){ for(var k in DEF) if(!VAR[k]) VAR[k]="--c-"+k; })();
+
+function readPalette(){
+  var cs=null;
+  try{ if(typeof getComputedStyle==="function"&&document.documentElement)
+         cs=getComputedStyle(document.documentElement); }catch(e){}
+  for(var k in DEF){
+    var v=cs?String(cs.getPropertyValue(VAR[k])||"").trim():"";
+    C[k]=v||DEF[k];
+  }
+  /* канонічні імена v2; brass/clay/grey/green лишаються як синоніми для сумісності */
+  C.brand=C.green; C.warn=C.brass; C.crit=C.clay; C.neutral=C.grey;
+  /* масиви-шкали — теж живі, перезбираються разом із палітрою */
+  C.cat=[C.cat1,C.cat2,C.cat3,C.cat4,C.cat5,C.cat6,C.cat7,C.cat8];
+  C.seq=[C.seq1,C.seq2,C.seq3,C.seq4,C.seq5];
+  C.div=[C.div1,C.div2,C.div3,C.div4,C.div5];
+  return C;
+}
+readPalette();
+
+/* Категорійний колір за індексом: 8 різних, далі по колу.
+   Використовувати ЛИШЕ там, де категорії рівноправні (групи меню, статті витрат).
+   Якщо в даних є «добре/погано» — брати green / brass / clay, а не cat. */
+function cat(i){return C.cat[((i%8)+8)%8];}
+
+/* Послідовний колір: частка 0..1 → 5 сходинок від світлого до брендового.
+   Для інтенсивності (завантаження годин, частота, теплокарта). */
+function seq(t){
+  var i=Math.round(Math.max(0,Math.min(1,t))*(C.seq.length-1));
+  return C.seq[i];
+}
+
+/* Колір підпису поверх заливки: білий на темному, чорнило на світлому.
+   Потрібен для seq/div — на світлих сходинках білий текст не читається. */
+function textOn(bg){
+  var m=/^#?([0-9a-f]{6})$/i.exec(String(bg).trim());
+  if(!m)return "#fff";
+  var n=parseInt(m[1],16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  return (0.2126*r+0.7152*g+0.0722*b)>150 ? C.ink : "#fff";
+}
+
+/* Розбіжний колір для оцінки: value проти шкали [min..max],
+   де min — погано, max — добре. Для скорингу ризиків, KPI-панелей.
+   bad:true перевертає напрям (більше = гірше). */
+function div(v,min,max,bad){
+  var t=(max===min)?0.5:(v-min)/(max-min);
+  if(bad)t=1-t;
+  var i=Math.round(Math.max(0,Math.min(1,t))*(C.div.length-1));
+  return C.div[i];
+}
+
+/* Перемальовування під зміну теми.
+   У звіті всі виклики графіків загортаються у drawAll() і передаються сюди. */
+function onTheme(drawAll){
+  if(typeof drawAll!=="function")return;
+  try{
+    var mq=window.matchMedia("(prefers-color-scheme: dark)");
+    var h=function(){readPalette();drawAll();};
+    if(mq.addEventListener)mq.addEventListener("change",h);
+    else if(mq.addListener)mq.addListener(h);
+  }catch(e){}
+}
+
+/* ---------- утиліти ---------- */
+function fmt(n,d){d=(d===undefined)?0:d;
+  var s=Math.abs(n).toFixed(d).replace(".",","),p=s.split(",");
+  p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g," ");
+  return (n<0?"−":"")+p.join(",");}
+function pct(v,tot){return (v/tot*100).toFixed(1).replace(".",",")+"%";}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function $(id){return document.getElementById(id);}
+function svg(w,h,inner){return '<svg viewBox="0 0 '+w+' '+h+'" role="img">'+inner+'</svg>';}
+function tip(t){return ' data-tip="'+esc(t).replace(/"/g,"&quot;")+'"';}
+function put(el,html){el=(typeof el==="string")?$(el):el; if(el)el.innerHTML=html; return el;}
+
+/* ---------- тултип (викликати один раз) ---------- */
+function initTip(){
+  var T=$("tip"); if(!T)return;
+  document.addEventListener("mouseover",function(e){
+    var t=e.target.closest?e.target.closest("[data-tip]"):null;
+    if(!t)return; T.innerHTML=t.getAttribute("data-tip"); T.style.opacity="1";});
+  document.addEventListener("mousemove",function(e){
+    if(T.style.opacity==="1"){T.style.left=e.clientX+"px";T.style.top=e.clientY+"px";}});
+  document.addEventListener("mouseout",function(e){
+    var t=e.target.closest?e.target.closest("[data-tip]"):null; if(t)T.style.opacity="0";});
+}
+
+/* ---------- 1. Горизонтальні бари ----------
+   rows: [{l,v,c,lab,t}]  opt: {labW,max,band:[a,b],bandLabel,unit,W} */
+function hbars(el,rows,opt){
+  opt=opt||{};var W=opt.W||760,labW=opt.labW||200,pad=opt.pad||110,bw=W-labW-pad;
+  var max=opt.max||Math.max.apply(null,rows.map(function(r){return r.v;}))*1.08;
+  var H=rows.length*46+26,s="";
+  if(opt.band){
+    var x1=labW+opt.band[0]/max*bw,x2=labW+opt.band[1]/max*bw;
+    s+='<rect x="'+x1+'" y="6" width="'+(x2-x1)+'" height="'+(H-30)+'" fill="'+C.brass+'" opacity=".16"/>';
+    s+='<line x1="'+x1+'" y1="6" x2="'+x1+'" y2="'+(H-24)+'" class="thrline"/>';
+    s+='<line x1="'+x2+'" y1="6" x2="'+x2+'" y2="'+(H-24)+'" class="thrline"/>';
+    s+='<text x="'+((x1+x2)/2)+'" y="'+(H-12)+'" text-anchor="middle" class="thr">'+opt.bandLabel+'</text>';
+  }
+  rows.forEach(function(r,i){
+    var y=i*46+10,w=Math.max(2,r.v/max*bw);
+    s+='<text x="'+(labW-12)+'" y="'+(y+22)+'" text-anchor="end" class="axb">'+r.l+'</text>';
+    s+='<rect x="'+labW+'" y="'+y+'" width="'+w+'" height="28" rx="4" fill="'+(r.c||C.green)+'" class="bar"'+
+       tip("<b>"+r.l+"</b><br>"+(r.t||fmt(r.v,2)))+'/>';
+    s+='<text x="'+(labW+w+10)+'" y="'+(y+20)+'" class="val">'+(r.lab||fmt(r.v,2))+'</text>';
+  });
+  return put(el,svg(W,H,s));
+}
+
+/* ---------- 2. Вертикальні бари (підтримують мінус, поріг, ціль, накопичення) ----------
+   rows: [{l,v,t?,note?}]  opt: {thr,thrLabel,target(bool),cum(bool),unit,hi,lo,fmtLab,caption} */
+function vbars(el,rows,opt){
+  opt=opt||{};
+  var W=opt.W||760,H=opt.H||300,pad=opt.pad||64,top=26,bot=H-52;
+  var vals=rows.map(function(r){return r.v;});
+  if(opt.target)vals=vals.concat(rows.map(function(r){return r.t||0;}));
+  var cum=[],acc=0;rows.forEach(function(r){acc+=r.v;cum.push(acc);});
+  if(opt.cum)vals=vals.concat(cum);
+  var hi=(opt.hi!==undefined)?opt.hi:Math.max.apply(null,vals)*1.12;
+  var lo=(opt.lo!==undefined)?opt.lo:Math.min(0,Math.min.apply(null,vals)*1.12);
+  var sc=function(v){return bot-(v-lo)/(hi-lo)*(bot-top);},bw=(W-pad-10)/rows.length,s="",z=sc(0);
+  (opt.grid||niceGrid(lo,hi)).forEach(function(g){
+    s+='<line x1="'+pad+'" y1="'+sc(g)+'" x2="'+W+'" y2="'+sc(g)+'" class="grid"/>';
+    s+='<text x="'+(pad-8)+'" y="'+(sc(g)+4)+'" text-anchor="end" class="ax">'+(opt.fmtLab?opt.fmtLab(g):fmt(g))+'</text>';
+  });
+  s+='<line x1="'+pad+'" y1="'+z+'" x2="'+W+'" y2="'+z+'" class="zero"/>';
+  rows.forEach(function(r,i){
+    var x=pad+10+i*bw,w=bw-26,bx=x,bwid=w;
+    if(opt.target&&r.t){
+      s+='<rect x="'+x+'" y="'+sc(r.t)+'" width="'+w+'" height="'+(bot-sc(r.t))+'" rx="3" fill="'+C.brass+
+         '" opacity=".22" class="bar"'+tip("<b>Ціль "+r.l+"</b><br>"+fmt(r.t))+'/>';
+      s+='<line x1="'+x+'" y1="'+sc(r.t)+'" x2="'+(x+w)+'" y2="'+sc(r.t)+'" stroke="'+C.brass+'" stroke-width="2"/>';
+      s+='<text x="'+(x+w/2)+'" y="'+(sc(r.t)-6)+'" text-anchor="middle" class="val" style="font-size:11px" fill="'+C.brass+'">'+fmt(r.t)+'</text>';
+      bx=x+w*0.16;bwid=w*0.68;
+    }
+    var col=r.c||(opt.thr!==undefined?(r.v>=opt.thr?C.greenS:C.clay):(r.v>=0?C.greenS:C.clay));
+    var y=r.v>=0?sc(r.v):z,h=Math.max(Math.abs(sc(r.v)-z),2);
+    s+='<rect x="'+bx+'" y="'+y+'" width="'+bwid+'" height="'+h+'" rx="3" fill="'+col+'" class="bar"'+
+       tip("<b>"+r.l+"</b><br>"+fmt(r.v,r.d||0)+(opt.unit?" "+opt.unit:"")+(r.note?"<br>"+r.note:"")+
+           (opt.cum?"<br>наростаючим: "+fmt(cum[i]):""))+'/>';
+    var inside=(opt.target&&r.t);
+    s+='<text x="'+(bx+bwid/2)+'" y="'+(inside?y+18:(r.v>=0?y-7:z+h+16))+'" text-anchor="middle" class="val" style="font-size:11.5px" fill="'+
+       (inside?"#fff":(r.v>=0?C.green:C.clay))+'">'+(r.lab||fmt(r.v))+'</text>';
+    s+='<text x="'+(x+w/2)+'" y="'+(H-18)+'" text-anchor="middle" class="'+(opt.boldX?"axb":"ax")+'">'+r.l+'</text>';
+  });
+  if(opt.thr!==undefined){
+    s+='<line x1="'+pad+'" y1="'+sc(opt.thr)+'" x2="'+W+'" y2="'+sc(opt.thr)+'" class="thrline"/>';
+    s+='<text x="'+(pad+14)+'" y="'+(sc(opt.thr)-9)+'" class="thr">'+(opt.thrLabel||("поріг "+fmt(opt.thr)))+'</text>';
+  }
+  if(opt.cum){
+    var pts=rows.map(function(r,i){return (pad+10+i*bw+(bw-26)/2)+","+sc(cum[i]);}).join(" ");
+    s+='<polyline points="'+pts+'" fill="none" stroke="'+C.brass+'" stroke-width="2.5"/>';
+    rows.forEach(function(r,i){
+      s+='<circle cx="'+(pad+10+i*bw+(bw-26)/2)+'" cy="'+sc(cum[i])+'" r="4.5" fill="'+C.brass+'"'+
+         tip("Наростаючим підсумком<br><b>"+fmt(cum[i])+"</b>")+'/>';});
+  }
+  if(opt.caption)s+='<text x="'+pad+'" y="16" class="ax">'+opt.caption+'</text>';
+  return put(el,svg(W,H,s));
+}
+function niceGrid(lo,hi){
+  var span=hi-lo,step=Math.pow(10,Math.floor(Math.log(span/4)/Math.LN10));
+  if(span/step>8)step*=2; if(span/step>8)step*=2.5;
+  var g=[],v=Math.ceil(lo/step)*step;
+  while(v<=hi){g.push(Math.round(v*1000)/1000);v+=step;}
+  if(g.indexOf(0)<0&&lo<0)g.push(0);
+  return g;
+}
+
+/* ---------- 3. Бублик ----------
+   items: [{l,v,c,p?}]  p — готова частка, якщо у звіті стоїть своя цифра */
+function donut(el,items,center,sub,opt){
+  opt=opt||{};var W=opt.W||760,H=250,cx=150,cy=125,r=98,r2=60,tot=0,i;
+  for(i=0;i<items.length;i++)tot+=items[i].v;
+  var a=-Math.PI/2,s="";
+  function arc(a0,a1){
+    var p=function(a,rr){return [cx+rr*Math.cos(a),cy+rr*Math.sin(a)];};
+    var lg=(a1-a0)>Math.PI?1:0,s1=p(a0,r),e1=p(a1,r),s2=p(a1,r2),e2=p(a0,r2);
+    return "M"+s1[0]+" "+s1[1]+"A"+r+" "+r+" 0 "+lg+" 1 "+e1[0]+" "+e1[1]+
+           "L"+s2[0]+" "+s2[1]+"A"+r2+" "+r2+" 0 "+lg+" 0 "+e2[0]+" "+e2[1]+"Z";}
+  for(i=0;i<items.length;i++){
+    var a1=a+items[i].v/tot*Math.PI*2,p=items[i].p||pct(items[i].v,tot);
+    s+='<path d="'+arc(a,a1-0.012)+'" fill="'+items[i].c+'" class="bar"'+
+       tip("<b>"+items[i].l+"</b><br>"+fmt(items[i].v,2)+" "+(opt.unit||"zł")+" · "+p)+'/>';
+    a=a1;}
+  s+='<text x="'+cx+'" y="'+(cy-4)+'" text-anchor="middle" class="val" style="font-size:23px">'+center+'</text>';
+  s+='<text x="'+cx+'" y="'+(cy+18)+'" text-anchor="middle" class="ax">'+sub+'</text>';
+  var ly=52;
+  for(i=0;i<items.length;i++){
+    s+='<rect x="310" y="'+(ly-11)+'" width="12" height="12" rx="3" fill="'+items[i].c+'"/>';
+    s+='<text x="330" y="'+ly+'" class="axb">'+items[i].l+'</text>';
+    s+='<text x="'+(W-10)+'" y="'+ly+'" text-anchor="end" class="val">'+fmt(items[i].v,2)+' '+(opt.unit||"zł")+
+       ' · '+(items[i].p||pct(items[i].v,tot))+'</text>';
+    ly+=42;}
+  return put(el,svg(W,H,s));
+}
+
+/* ---------- 4. Стековий бар зі структурою ----------
+   items:[{l,v,c}] opt:{top,legend:"row"|"under",highlight:index,note} */
+function stack(el,items,opt){
+  opt=opt||{};var W=opt.W||760,tot=items.reduce(function(a,b){return a+b.v;},0),x=0,s="";
+  var H=(opt.legend==="row")?118:(opt.note?170:150);
+  if(opt.top)s+='<text x="0" y="12" class="ax">'+opt.top+'</text>';
+  var anch=["start","middle","end"],lx=[0,W/2,W];
+  items.forEach(function(r,i){
+    var w=r.v/tot*W;
+    s+='<rect x="'+x+'" y="'+(opt.legend==="row"?18:26)+'" width="'+(w-2)+'" height="'+(opt.legend==="row"?46:52)+
+       '" rx="4" fill="'+r.c+'" class="bar"'+tip("<b>"+r.l+"</b><br>"+fmt(r.v,2)+" "+(opt.unit||"zł")+" · "+pct(r.v,tot))+'/>';
+    s+='<text x="'+(x+w/2)+'" y="'+(opt.legend==="row"?47:58)+'" text-anchor="middle" class="val" fill="#fff" style="font-size:12px">'+pct(r.v,tot)+'</text>';
+    if(opt.legend==="row"){
+      s+='<text x="'+lx[i]+'" y="88" text-anchor="'+anch[i]+'" class="ax" fill="'+r.c+'" style="font-weight:600">'+r.l+'</text>';
+      s+='<text x="'+lx[i]+'" y="106" text-anchor="'+anch[i]+'" class="val" style="font-size:13px">'+fmt(r.v,2)+'</text>';
+    }else{
+      var ly=i%2?116:96;
+      s+='<line x1="'+(x+w/2)+'" y1="80" x2="'+(x+w/2)+'" y2="'+(ly-13)+'" stroke="'+C.line+'"/>';
+      s+='<text x="'+(x+w/2)+'" y="'+ly+'" text-anchor="middle" class="ax">'+r.l+'</text>';
+      s+='<text x="'+(x+w/2)+'" y="'+(ly+16)+'" text-anchor="middle" class="val" style="font-size:11.5px">'+fmt(r.v)+'</text>';
+    }
+    if(opt.highlight===i)
+      s+='<rect x="'+x+'" y="20" width="'+(w-2)+'" height="64" rx="5" fill="none" stroke="'+r.c+'" stroke-width="2" stroke-dasharray="4 3"/>';
+    x+=w;});
+  if(opt.note)s+='<text x="'+W+'" y="'+(H-18)+'" text-anchor="end" class="thr" fill="'+C.clay+'">'+opt.note+'</text>';
+  return put(el,svg(W,H,s));
+}
+
+/* ---------- 5. Лінійка порогів ----------
+   marks:[{v,l,s,c,up:0|1,lvl:1|2}] opt:{max,split,leftLabel,rightLabel,unit} */
+function scale(el,marks,opt){
+  opt=opt||{};var W=opt.W||760,H=222,L=54,R=W-24,max=opt.max,AX=112;
+  var x=function(v){return L+v/max*(R-L);},s="";
+  (opt.ticks||[]).forEach(function(g){
+    s+='<line x1="'+x(g)+'" y1="18" x2="'+x(g)+'" y2="'+(H-16)+'" class="grid"/>';
+    s+='<text x="'+x(g)+'" y="12" text-anchor="middle" class="ax">'+fmt(g)+'</text>';});
+  if(opt.split!==undefined){
+    s+='<rect x="'+L+'" y="'+(AX-10)+'" width="'+(x(opt.split)-L)+'" height="20" fill="'+C.clay+'" opacity=".16"/>';
+    s+='<rect x="'+x(opt.split)+'" y="'+(AX-10)+'" width="'+(R-x(opt.split))+'" height="20" fill="'+C.greenS+'" opacity=".16"/>';}
+  s+='<line x1="'+L+'" y1="'+AX+'" x2="'+R+'" y2="'+AX+'" stroke="'+C.line+'" stroke-width="2"/>';
+  if(opt.leftLabel)s+='<text x="'+L+'" y="'+(H-2)+'" class="thr" fill="'+C.clay+'">'+opt.leftLabel+'</text>';
+  if(opt.rightLabel)s+='<text x="'+R+'" y="'+(H-2)+'" text-anchor="end" class="thr" fill="'+C.greenS+'">'+opt.rightLabel+'</text>';
+  marks.forEach(function(m){
+    var X=x(m.v),vy,ny,l0,l1;
+    if(m.up){ if(m.lvl===1){vy=88;ny=72;l0=94;l1=AX-10;} else {vy=52;ny=36;l0=58;l1=AX-10;} }
+    else    { if(m.lvl===1){vy=142;ny=158;l0=AX+10;l1=132;} else {vy=180;ny=196;l0=AX+10;l1=170;} }
+    s+='<line x1="'+X+'" y1="'+l0+'" x2="'+X+'" y2="'+l1+'" stroke="'+m.c+'" stroke-width="1.6"/>';
+    s+='<circle cx="'+X+'" cy="'+AX+'" r="6" fill="'+m.c+'"'+
+       tip("<b>"+m.l+"</b><br>"+fmt(m.v,2)+" "+(opt.unit||"zł")+(m.s?"<br>"+m.s:""))+'/>';
+    var ta=(X>R-100)?"end":(X<L+90?"start":"middle"),tx=(ta==="end")?R:(ta==="start"?L:X);
+    s+='<text x="'+tx+'" y="'+vy+'" text-anchor="'+ta+'" class="val" fill="'+m.c+'">'+fmt(m.v)+' '+(opt.unit||"zł")+'</text>';
+    s+='<text x="'+tx+'" y="'+ny+'" text-anchor="'+ta+'" class="ax">'+m.l+'</text>';});
+  return put(el,svg(W,H,s));
+}
+
+/* ---------- 6. Діапазонні бари (від–до проти точки) ----------
+   rows:[{l,sub,from,to,c,lab,t}] opt:{max,axisLabel} */
+function rangebars(el,rows,opt){
+  opt=opt||{};var W=opt.W||760,H=rows.length*62+80,L=opt.labW||210,R=W-70,max=opt.max;
+  var x=function(v){return L+v/max*(R-L);},s="";
+  rows.forEach(function(r,i){
+    var y=42+i*62;
+    s+='<text x="'+(L-12)+'" y="'+(y+14)+'" text-anchor="end" class="axb">'+r.l+'</text>';
+    if(r.sub)s+='<text x="'+(L-12)+'" y="'+(y+32)+'" text-anchor="end" class="ax">'+r.sub+'</text>';
+    s+='<rect x="'+x(r.from)+'" y="'+y+'" width="'+Math.max(x(r.to)-x(r.from),3)+'" height="26" rx="4" fill="'+
+       (r.c||C.green)+'" class="bar"'+tip("<b>"+r.l+"</b><br>"+(r.t||(fmt(r.from,1)+"–"+fmt(r.to,1))))+'/>';
+    s+='<text x="'+(x(r.to)+10)+'" y="'+(y+18)+'" class="val" fill="'+(r.c||C.green)+'">'+(r.lab||(fmt(r.from,1)+"–"+fmt(r.to,1)))+'</text>';});
+  for(var g=0;g<=max;g+=(opt.step||1)){
+    s+='<line x1="'+x(g)+'" y1="30" x2="'+x(g)+'" y2="'+(H-40)+'" class="grid"/>';
+    s+='<text x="'+x(g)+'" y="'+(H-22)+'" text-anchor="middle" class="ax">'+fmt(g)+'</text>';}
+  if(opt.axisLabel)s+='<text x="'+L+'" y="20" class="ax">'+opt.axisLabel+'</text>';
+  return put(el,svg(W,H,s));
+}
+
+/* ---------- 7. Точкова матриця (100 артикулів, 218 позицій…) ----------
+   groups:[{n,c,l,t}] opt:{cols,cell,caption} */
+function dots(el,groups,opt){
+  opt=opt||{};var cols=opt.cols||20,cell=opt.cell||30,i=0,s="",tot=0;
+  groups.forEach(function(g){tot+=g.n;});
+  var rowsN=Math.ceil(tot/cols),W=cols*cell+10,H=rowsN*cell+70;
+  groups.forEach(function(g){
+    for(var k=0;k<g.n;k++,i++){
+      var x=(i%cols)*cell+8,y=Math.floor(i/cols)*cell+16;
+      s+='<circle cx="'+x+'" cy="'+y+'" r="'+(cell/3.15)+'" fill="'+g.c+'" class="bar"'+tip(g.t||g.l)+'/>';}});
+  if(opt.caption)s+='<text x="0" y="'+(rowsN*cell+34)+'" class="ax">'+opt.caption+'</text>';
+  var lx=8;
+  groups.forEach(function(g){
+    s+='<circle cx="'+lx+'" cy="'+(rowsN*cell+58)+'" r="7" fill="'+g.c+'"/>';
+    s+='<text x="'+(lx+16)+'" y="'+(rowsN*cell+63)+'" class="axb">'+g.l+'</text>';
+    lx+=Math.max(120,g.l.length*8.2+40);});
+  return put(el,svg(W,H,s));
+}
+
+/* ---------- 8. Вісь часу з подіями ----------
+   marks:[{t,l,s,c,pos 0..1}] */
+function timeline(el,marks,opt){
+  opt=opt||{};var W=opt.W||760,H=190,L=40,R=W-30,s="";
+  s+='<line x1="'+L+'" y1="86" x2="'+R+'" y2="86" stroke="'+C.line+'" stroke-width="2"/>';
+  marks.forEach(function(r,i){
+    var x=L+r.pos*(R-L),up=i%2===0;
+    s+='<line x1="'+x+'" y1="'+(up?60:86)+'" x2="'+x+'" y2="'+(up?86:112)+'" stroke="'+r.c+'" stroke-width="2"/>';
+    s+='<circle cx="'+x+'" cy="86" r="7" fill="'+r.c+'"'+tip("<b>"+r.t+"</b><br>"+r.l+(r.s?"<br>"+r.s:""))+'/>';
+    var ta=(r.pos>0.92)?"end":(r.pos<0.08?"start":"middle");
+    s+='<text x="'+x+'" y="'+(up?50:132)+'" text-anchor="'+ta+'" class="val" fill="'+r.c+'">'+r.t+'</text>';
+    s+='<text x="'+x+'" y="'+(up?34:148)+'" text-anchor="'+ta+'" class="axb">'+r.l+'</text>';
+    if(r.s)s+='<text x="'+x+'" y="'+(up?18:164)+'" text-anchor="'+ta+'" class="ax">'+r.s+'</text>';});
+  return put(el,svg(W,H,s));
+}
+
+/* ---------- 9. Конструктор ефекту (інтерактивний) ----------
+   blocks:[{id,l,v,c,d}] opt:{cost,costLabel,totalLabel,resetBtn} */
+function waterfall(el,blocks,opt){
+  opt=opt||{};el=(typeof el==="string")?$(el):el;
+  var on={};blocks.forEach(function(b){on[b.id]=1;});
+  function draw(){
+    var W=opt.W||760,H=blocks.length*54+140,L=opt.labW||210,R=W-140;
+    var max=blocks.reduce(function(a,b){return a+b.v;},0)*1.02;
+    var x=function(v){return L+v/max*(R-L);},s="",acc=0;
+    blocks.forEach(function(b,i){
+      var y=24+i*54,act=on[b.id],w=x(b.v)-L;
+      s+='<text x="'+(L-12)+'" y="'+(y+20)+'" text-anchor="end" class="axb" opacity="'+(act?1:.4)+'">'+b.l+'</text>';
+      s+='<rect x="'+x(acc)+'" y="'+y+'" width="'+w+'" height="30" rx="4" fill="'+b.c+'" opacity="'+(act?1:.22)+
+         '" style="cursor:pointer" data-b="'+b.id+'"'+tip("<b>"+b.l+"</b><br>"+fmt(b.v,2)+"<br>"+b.d+"<br><i>клік — увімкнути/вимкнути</i>")+'/>';
+      s+='<text x="'+(x(acc)+w+8)+'" y="'+(y+20)+'" class="val" opacity="'+(act?1:.4)+'">'+fmt(b.v,2)+'</text>';
+      if(act)acc+=b.v;});
+    var y=24+blocks.length*54+14;
+    s+='<text x="'+(L-12)+'" y="'+(y+22)+'" text-anchor="end" class="axb" style="font-weight:700">'+(opt.totalLabel||"РАЗОМ")+'</text>';
+    s+='<rect x="'+L+'" y="'+y+'" width="'+(x(acc)-L)+'" height="34" rx="4" fill="'+C.ink+'" class="bar"'+
+       tip("<b>Сумарний ефект</b><br>"+fmt(acc,2))+'/>';
+    s+='<text x="'+(x(acc)+8)+'" y="'+(y+23)+'" class="val" style="font-size:15px">'+fmt(acc,2)+'</text>';
+    if(opt.cost){
+      var cy=y+62;
+      s+='<line x1="'+x(opt.cost)+'" y1="14" x2="'+x(opt.cost)+'" y2="'+(cy-14)+'" class="thrline"/>';
+      s+='<text x="'+(x(opt.cost)+8)+'" y="'+(cy-2)+'" class="thr">'+(opt.costLabel||("ціна "+fmt(opt.cost)))+'</text>';
+      s+='<text x="'+(L-12)+'" y="'+(cy-2)+'" text-anchor="end" class="val" fill="'+C.brass+'">окупність '+(acc/opt.cost).toFixed(1).replace(".",",")+' ×</text>';}
+    put(el,svg(W,H,s));}
+  draw();
+  el.addEventListener("click",function(e){
+    var t=e.target.getAttribute&&e.target.getAttribute("data-b");
+    if(t){on[t]=!on[t];draw();}});
+  if(opt.resetBtn&&$(opt.resetBtn))$(opt.resetBtn).addEventListener("click",function(){
+    blocks.forEach(function(b){on[b.id]=1;});draw();});
+  return el;
+}
+
+/* ---------- 10. Плитки (для таблиць, які не зводяться до однієї шкали) ----------
+   rows:[{kicker,title,big,sub,foot,tag,c}] */
+function tiles(el,rows,opt){
+  opt=opt||{};
+  var h='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax('+(opt.min||215)+'px,1fr));gap:12px">';
+  rows.forEach(function(r){
+    var c=r.c||C.green;
+    h+='<div style="border:1px solid var(--line);'+(opt.topRule?'border-top:3px solid '+c+';':'')+
+       (opt.leftRule?'border-left:3px solid '+c+';':'')+'border-radius:10px;padding:15px 16px;background:var(--paper);display:flex;flex-direction:column;gap:6px">';
+    if(r.kicker)h+='<div class="num" style="font-size:11px;color:var(--brass);font-weight:600">'+r.kicker+'</div>';
+    if(r.title)h+='<div style="font-size:14.5px;font-weight:600;line-height:1.25">'+r.title+'</div>';
+    if(r.big)h+='<div class="num" style="font-size:'+(opt.bigSize||20)+'px;font-weight:600;color:'+c+';letter-spacing:-.03em">'+r.big+'</div>';
+    if(r.sub)h+='<div style="font-size:12.4px;color:var(--ink-mute);line-height:1.4">'+r.sub+'</div>';
+    if(r.foot)h+='<div style="margin-top:auto;padding-top:8px;border-top:1px solid var(--line);font-size:12.4px"><b style="font-weight:600">'+r.foot+'</b></div>';
+    if(r.tag)h+='<div style="font-size:10.4px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+c+'">'+r.tag+'</div>';
+    h+='</div>';});
+  return put(el,h+'</div>');
+}
+
+/* ---------- 11. Калькулятор «повзунок → результат» ----------
+   cfg:{slider,valOut,results:[{el,f,cls}],onChange} */
+function calc(cfg){
+  var sl=$(cfg.slider);if(!sl)return;
+  function upd(){
+    var v=+sl.value;
+    if(cfg.valOut&&$(cfg.valOut))$(cfg.valOut).textContent=fmt(v);
+    (cfg.results||[]).forEach(function(r){
+      var node=$(r.el);if(!node)return;
+      var out=r.f(v);
+      node.textContent=out.text;node.className="v"+(out.cls?" "+out.cls:"");
+      if(r.size)node.style.fontSize=r.size;});
+    if(cfg.onChange)cfg.onChange(v);}
+  sl.addEventListener("input",upd);upd();
+}
+
+/* ---------- 12. Навігація: скролспай, прогрес, мобільне меню ---------- */
+function nav(){
+  var links=[].slice.call(document.querySelectorAll("#nav a")),
+      secs=links.map(function(a){return document.querySelector(a.getAttribute("href"));}),
+      prog=$("prog");
+  function onScroll(){
+    var y=window.scrollY,h=document.body.scrollHeight-window.innerHeight;
+    if(prog)prog.style.width=(h>0?(y/h*100):0)+"%";
+    var cur=-1;
+    secs.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<180)cur=i;});
+    links.forEach(function(a,i){a.classList.toggle("on",i===cur);});}
+  window.addEventListener("scroll",onScroll,{passive:true});onScroll();
+  var btn=$("mobtn"),nv=$("nav");if(!btn||!nv)return;
+  btn.addEventListener("click",function(){
+    var rail=document.querySelector(".rail");
+    if(nv.style.display==="flex"){rail.style.cssText="";nv.style.display="";btn.setAttribute("aria-expanded","false");}
+    else{rail.style.cssText="display:flex;position:fixed;top:52px;left:0;right:0;width:100%;height:auto;max-height:70vh;z-index:70;border-bottom:1px solid var(--line);box-shadow:0 18px 40px -20px rgba(0,0,0,.35)";
+         nv.style.display="flex";btn.setAttribute("aria-expanded","true");}});
+  nv.addEventListener("click",function(e){
+    if(e.target.closest("a")&&window.innerWidth<=900){
+      document.querySelector(".rail").style.cssText="";nv.style.display="";btn.setAttribute("aria-expanded","false");}});
+}
+
+return {C:C,palette:readPalette,onTheme:onTheme,cat:cat,seq:seq,div:div,textOn:textOn,fmt:fmt,pct:pct,tip:tip,svg:svg,$:$,initTip:initTip,
+        hbars:hbars,vbars:vbars,donut:donut,stack:stack,scale:scale,
+        rangebars:rangebars,dots:dots,timeline:timeline,waterfall:waterfall,
+        tiles:tiles,calc:calc,nav:nav};
+})();
+/* ── Dashboard_Dnia_Dumka v1 · логіка застосунку ──
+   Дані живуть у localStorage цього браузера (свідоме відхилення від канону звітів:
+   це інструмент щоденного вводу, а не статичний звіт). Похідні величини НІКОЛИ не
+   зберігаються — тільки сирі входи; результат перераховується від чинних параметрів
+   (принцип «живої моделі» 10-біс). */
+
+var LSKEY="dumka_dash_v1";
+
+var DEF_FIX=[
+  {k:"orenda",l:"Оренда і комунальні (czynsz)",v:0,st:"f"},
+  {k:"energy",l:"Енергія, зв'язок, інтернет",v:0,st:"d"},
+  {k:"equip",l:"Обладнання, ремонт, інвентар",v:0,st:"d"},
+  {k:"serv",l:"Послуги (сервіс, медицина праці, сайт)",v:0,st:"d"},
+  {k:"lic",l:"Ліцензії та авторські (ZAiKS, STOART)",v:0,st:"f"},
+  {k:"fuel",l:"Паливо і транспорт",v:0,st:"d"},
+  {k:"credPct",l:"Кредит · відсотки і комісії",v:0,st:"f"},
+  {k:"credBody",l:"Кредит · тіло рати (окремий рядок у результаті)",v:0,st:"f",cred:1},
+  {k:"outside",l:"Платежі поза книгами (ліцензія алкоголь, podatek, księgowa, SMM)",v:0,st:"f"},
+  {k:"zus",l:"ZUS підприємниці",v:0,st:"f"}
+];
+var DEF_PARAMS={fcK:0,fcB:0,freeRate:22,workDays:26,be:0,fotCap:0,fix:DEF_FIX};
+
+var state=loadState();
+var form=null;          /* поточний день у формі (сирі значення) */
+var chartMode="res";    /* графік місяця: res | rev */
+
+/* ---------- сховище ---------- */
+function loadState(){
+  var s=null;
+  try{s=JSON.parse(localStorage.getItem(LSKEY)||"null");}catch(e){}
+  if(!s||typeof s!=="object")s={};
+  if(!s.days)s.days={};
+  if(!s.params)s.params={};
+  var p=s.params;
+  for(var k in DEF_PARAMS)if(p[k]===undefined)p[k]=DEF_PARAMS[k];
+  if(!p.fix||!p.fix.length)p.fix=JSON.parse(JSON.stringify(DEF_FIX));
+  return s;
+}
+function persist(){
+  try{localStorage.setItem(LSKEY,JSON.stringify(state));}
+  catch(e){var m=D.$("io-msg");if(m)m.textContent="⚠ Браузер не дає зберегти дані (приватний режим?). Введене живе лише до закриття вкладки.";}
+}
+function P(){return state.params;}
+function num(v){var n=parseFloat(String(v).replace(",","."));return isFinite(n)?n:0;}
+
+/* ---------- модель ---------- */
+function fixOperMonth(){var s=0;P().fix.forEach(function(r){if(!r.cred)s+=num(r.v);});return s;}
+function credMonth(){var s=0;P().fix.forEach(function(r){if(r.cred)s+=num(r.v);});return s;}
+function fixDay(){return fixOperMonth()/Math.max(1,num(P().workDays));}
+function credDay(){return credMonth()/Math.max(1,num(P().workDays));}
+
+function calcDay(d){
+  var p=P(),rev=num(d.rev),bar=d.split?Math.min(num(d.bar),rev):0,main=rev-bar;
+  var fc=main*num(p.fcK)/100+bar*num(p.fcB)/100;
+  var laborZ=0,laborK=0,people=0;
+  (d.zal||[]).forEach(function(r){var h=num(r.h);laborZ+=h*num(r.s);if(h>0)people++;});
+  (d.kuh||[]).forEach(function(r){var h=num(r.h);laborK+=h*num(r.s);if(h>0)people++;});
+  var labor=laborZ+laborK;
+  var freeH=0;(d.free||[]).forEach(function(r){freeH+=num(r.h);});
+  var freeCost=freeH*num(p.freeRate);
+  var contrib=rev-fc-labor;
+  var res=contrib-fixDay();
+  var resCred=res-credDay();
+  return {rev:rev,bar:bar,main:main,fc:fc,laborZ:laborZ,laborK:laborK,labor:labor,
+          people:people,contrib:contrib,res:res,resCred:resCred,
+          freeH:freeH,freeCost:freeCost,resFull:resCred-freeCost,
+          laborPct:rev>0?labor/rev*100:0,empty:(rev===0&&labor===0&&freeH===0)};
+}
+
+/* ---------- форма дня ---------- */
+function blankDay(){
+  var tpl=lastSavedDay();
+  function cp(rows,def){
+    if(tpl&&tpl[rows]&&tpl[rows].length)
+      return tpl[rows].map(function(r){return {n:r.n,h:"",s:r.s!==undefined?r.s:""};});
+    return def;
+  }
+  return {rev:"",bar:"",split:false,
+    zal:cp("zal",[{n:"Офіціант",h:"",s:""},{n:"Другий офіціант",h:"",s:""}]),
+    kuh:cp("kuh",[{n:"Кухар",h:"",s:""},{n:"Помічник кухаря",h:"",s:""}]),
+    free:(tpl&&tpl.free&&tpl.free.length)?tpl.free.map(function(r){return {n:r.n,h:""};})
+         :[{n:"Власниця",h:""},{n:"Практикант",h:""}]};
+}
+function lastSavedDay(){
+  var ks=Object.keys(state.days).sort();
+  return ks.length?state.days[ks[ks.length-1]]:null;
+}
+function deep(o){return JSON.parse(JSON.stringify(o));}
+
+function renderRows(){
+  function rowsHtml(g,withRate){
+    var h="";
+    (form[g]||[]).forEach(function(r,i){
+      var sum=withRate?num(r.h)*num(r.s):num(r.h)*num(P().freeRate);
+      h+='<tr>'+
+        '<td><input type="text" autocomplete="off" data-g="'+g+'" data-i="'+i+'" data-f="n" value="'+esc(r.n)+'" placeholder="хто"></td>'+
+        '<td style="max-width:96px"><input type="number" autocomplete="off" min="0" step="0.5" data-g="'+g+'" data-i="'+i+'" data-f="h" value="'+esc(r.h)+'" placeholder="0"></td>'+
+        (withRate?'<td style="max-width:110px"><input type="number" autocomplete="off" min="0" step="0.5" data-g="'+g+'" data-i="'+i+'" data-f="s" value="'+esc(r.s)+'" placeholder="0"></td>':'')+
+        '<td class="sum">'+(sum>0?D.fmt(sum,2)+" zł":"—")+'</td>'+
+        '<td><button class="del" data-del="'+g+'" data-i="'+i+'" title="прибрати рядок">×</button></td>'+
+      '</tr>';
+    });
+    return h;
+  }
+  document.querySelector("#t-zal tbody").innerHTML=rowsHtml("zal",true);
+  document.querySelector("#t-kuh tbody").innerHTML=rowsHtml("kuh",true);
+  document.querySelector("#t-free tbody").innerHTML=rowsHtml("free",false);
+}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");}
+
+function syncTopInputs(){
+  D.$("f-rev").value=form.rev;
+  D.$("f-bar").value=form.bar;
+  D.$("f-split").checked=!!form.split;
+  D.$("f-bar-wrap").style.display=form.split?"":"none";
+  D.$("f-rev-lab").textContent=form.split?"Виручка дня, zł (кухня + зал, без бару)":"Виручка дня, zł (уся каса)";
+}
+
+function loadFormFor(date){
+  form=state.days[date]?deep(state.days[date]):blankDay();
+  syncTopInputs();renderRows();updateDayResult();
+}
+
+function money(n){return D.fmt(n,2)+" zł";}
+function cls(n){return n<0?"rv neg":"rv pos";}
+
+function updateDayResult(){
+  var c=calcDay(form),p=P(),date=D.$("f-date").value;
+  D.$("r-date").textContent=date?("· "+date.split("-").reverse().join("."))+(state.days[date]?" (збережено)":""):"";
+  var L="";
+  L+='<div class="res-line"><span class="rl">Виручка дня</span><span class="rv">'+money(c.rev)+'</span></div>';
+  L+='<div class="res-line"><span class="rl">− Продукти (фудкост '+D.fmt(num(p.fcK),0)+'%'+
+     (form.split?(' кухня + '+D.fmt(num(p.fcB),0)+'% бар'):'')+')</span><span class="rv">−'+money(c.fc)+'</span></div>';
+  L+='<div class="res-line"><span class="rl">− Праця (зал '+money(c.laborZ)+' + кухня '+money(c.laborK)+
+     ' · людей: '+c.people+')</span><span class="rv">−'+money(c.labor)+'</span></div>';
+  L+='<div class="res-line lvl"><span class="rl">= Контрибуція дня</span><span class="'+cls(c.contrib)+'">'+money(c.contrib)+'</span></div>';
+  L+='<div class="res-line"><span class="rl">− Постійні на день (оренда, ZUS, рахунки, відсотки кредиту)</span><span class="rv">−'+money(fixDay())+'</span></div>';
+  L+='<div class="res-line lvl"><span class="rl">= Результат дня</span><span class="'+cls(c.res)+'">'+money(c.res)+'</span></div>';
+  L+='<div class="res-line"><span class="rl">− Кредит · тіло рати на день</span><span class="rv">−'+money(credDay())+'</span></div>';
+  L+='<div class="res-line lvl big"><span class="rl">= Результат дня з кредитом</span><span class="'+cls(c.resCred)+'">'+money(c.resCred)+'</span></div>';
+  if(c.freeH>0){
+    L+='<div class="res-line"><span class="rl">Безкоштовні: '+D.fmt(c.freeH,1)+' год × '+D.fmt(num(p.freeRate),0)+
+       ' zł = праця, за яку не платилось</span><span class="rv" style="color:var(--c-sand)">−'+money(c.freeCost)+'</span></div>';
+    L+='<div class="res-line"><span class="rl"><b>Якби платили всім</b> — результат дня був би</span><span class="'+cls(c.resFull)+'">'+money(c.resFull)+'</span></div>';
+  }
+  D.$("r-lines").innerHTML=L;
+
+  var A="";
+  if(fixOperMonth()+credMonth()+num(p.fcK)===0)
+    A+='<div class="alert warn"><b>Параметри моделі ще не завантажені.</b> Відкрийте розділ '+
+       '«Збереження даних» і натисніть «Відновити з копії», обравши файл параметрів від консультанта — '+
+       'після цього калькулятор рахуватиме по цифрах вашого закладу.</div>';
+  if(!c.empty){
+    if(c.resCred<0&&c.people>2)
+      A+='<div class="alert crit"><b>День у мінусі ('+money(c.resCred)+'), а оплачуваних людей — '+c.people+
+         '.</b> Перше питання дня: чи потрібен був такий склад зміни?</div>';
+    if(c.contrib<0)
+      A+='<div class="alert crit">Каса дня не покрила навіть продукти і працю — контрибуція від\'ємна.</div>';
+    if(c.rev>0&&num(p.fotCap)>0&&c.laborPct>num(p.fotCap))
+      A+='<div class="alert warn">Праця забрала <b>'+D.fmt(c.laborPct,1)+'%</b> каси — вище стелі '+D.fmt(num(p.fotCap),1)+
+         '% (стеля, за якою день здатен оплатити свій штат).</div>';
+    if(c.rev>0&&num(p.be)>0&&c.rev<num(p.be))
+      A+='<div class="alert warn">Виручка '+money(c.rev)+' — нижча за поріг беззбитковості '+money(num(p.be))+
+         ' на робочий день.</div>';
+    if(A===""&&c.resCred>=0)
+      A='<div class="alert ok">День у плюсі: <b>+'+money(c.resCred)+'</b> після продуктів, праці, постійних і кредиту.</div>';
+  }
+  D.$("r-alerts").innerHTML=A;
+}
+
+/* ---------- місяць ---------- */
+function monthDays(mk){
+  return Object.keys(state.days).filter(function(d){return d.slice(0,7)===mk;}).sort();
+}
+var WD=["Нд","Пн","Вт","Ср","Чт","Пт","Сб"];
+
+function renderMonth(){
+  var mk=D.$("f-month").value||new Date().toISOString().slice(0,7);
+  var ks=monthDays(mk),p=P();
+  var T={rev:0,fc:0,labor:0,contrib:0,res:0,resCred:0,freeH:0,freeCost:0,neg:0,flags:0};
+  var rows=[];
+  ks.forEach(function(dk){
+    var c=calcDay(state.days[dk]);
+    T.rev+=c.rev;T.fc+=c.fc;T.labor+=c.labor;T.contrib+=c.contrib;T.res+=c.res;T.resCred+=c.resCred;
+    T.freeH+=c.freeH;T.freeCost+=c.freeCost;
+    if(c.resCred<0)T.neg++;
+    var flag=(c.resCred<0&&c.people>2);if(flag)T.flags++;
+    rows.push({dk:dk,c:c,flag:flag});
+  });
+  var n=ks.length,wd=Math.max(1,num(p.workDays));
+
+  /* KPI-смуга */
+  D.$("k-rev").textContent=n?money(T.rev):"—";
+  D.$("k-rev-s").textContent="днів заповнено: "+n+" із "+wd;
+  var kres=D.$("k-res");kres.textContent=n?((T.resCred>=0?"+":"")+money(T.resCred)):"—";
+  kres.style.color=n&&T.resCred<0?"var(--crit)":"";
+  D.$("k-avg").textContent=n?money(T.rev/n):"—";
+  D.$("k-avg-s").textContent=num(p.be)>0
+    ?"беззбитковість ≈ "+money(num(p.be))+"/день"
+    :"поріг беззбитковості — після завантаження параметрів";
+  var kneg=D.$("k-neg");kneg.textContent=n?(T.neg+" із "+n):"—";
+  kneg.style.color=T.neg>0?"var(--crit)":"";
+
+  /* примітка про нарахування постійних */
+  var note=D.$("m-note");
+  if(n&&n<wd){
+    var rest=(wd-n)*(fixDay()+credDay());
+    note.textContent="Постійні нараховано за "+n+" заповнених днів. Решта "+(wd-n)+
+      " робочих днів місяця додадуть ще −"+money(rest)+" постійних.";
+  }else note.textContent=n?"Заповнені всі "+wd+" робочих днів — місяць повний.":"";
+
+  /* таблиця днів */
+  var H="";
+  rows.forEach(function(r){
+    var d=new Date(r.dk+"T12:00:00"),c=r.c;
+    H+='<tr'+(r.flag?' class="flagged"':'')+'>'+
+      '<td>'+r.dk.slice(8)+' '+WD[d.getDay()]+'</td>'+
+      '<td class="n">'+D.fmt(c.rev,2)+'</td>'+
+      '<td class="n">−'+D.fmt(c.fc,2)+'</td>'+
+      '<td class="n">−'+D.fmt(c.labor,2)+'</td>'+
+      '<td class="n">'+c.people+(r.flag?' <span class="fl">склад!</span>':'')+'</td>'+
+      '<td class="n">'+D.fmt(c.contrib,2)+'</td>'+
+      '<td class="n '+(c.resCred<0?"neg":"pos")+'">'+D.fmt(c.resCred,2)+'</td>'+
+      '<td class="n">'+(c.freeH>0?D.fmt(c.resFull,2):"—")+'</td>'+
+      '<td><a class="edit" data-date="'+r.dk+'">змінити</a></td>'+
+    '</tr>';
+  });
+  if(n){
+    H+='<tr class="total"><td>РАЗОМ ('+n+' дн.)</td>'+
+      '<td class="n">'+D.fmt(T.rev,2)+'</td><td class="n">−'+D.fmt(T.fc,2)+'</td>'+
+      '<td class="n">−'+D.fmt(T.labor,2)+'</td><td class="n"></td>'+
+      '<td class="n">'+D.fmt(T.contrib,2)+'</td>'+
+      '<td class="n '+(T.resCred<0?"neg":"pos")+'">'+D.fmt(T.resCred,2)+'</td>'+
+      '<td class="n">'+(T.freeH>0?D.fmt(T.resCred-T.freeCost,2):"—")+'</td><td></td></tr>';
+  }else H='<tr><td colspan="9"><div class="emptymsg">Ще немає збережених днів у цьому місяці.</div></td></tr>';
+  document.querySelector("#m-table tbody").innerHTML=H;
+
+  /* підсумкова таблиця розділу 3 */
+  var fixAcc=n*fixDay(),credAcc=n*credDay();
+  function pc(v){return T.rev>0?D.fmt(v/T.rev*100,1)+"%":"—";}
+  var S="";
+  if(n){
+    S+='<tr><td>Виручка (каса)</td><td class="n">'+D.fmt(T.rev,2)+'</td><td class="n">100%</td></tr>';
+    S+='<tr><td>Продукти (фудкост)</td><td class="n">−'+D.fmt(T.fc,2)+'</td><td class="n">'+pc(T.fc)+'</td></tr>';
+    S+='<tr><td>Праця оплачена</td><td class="n">−'+D.fmt(T.labor,2)+'</td><td class="n">'+pc(T.labor)+'</td></tr>';
+    S+='<tr><td>Постійні платежі (нараховано за '+n+' дн.)</td><td class="n">−'+D.fmt(fixAcc,2)+'</td><td class="n">'+pc(fixAcc)+'</td></tr>';
+    S+='<tr><td>Кредит · тіло рати (за '+n+' дн.)</td><td class="n">−'+D.fmt(credAcc,2)+'</td><td class="n">'+pc(credAcc)+'</td></tr>';
+    S+='<tr class="total"><td>Результат періоду</td><td class="n '+(T.resCred<0?"neg":"pos")+'">'+D.fmt(T.resCred,2)+'</td><td class="n">'+pc(Math.abs(T.resCred))+'</td></tr>';
+    S+='<tr><td>Довідково: безкоштовна праця '+D.fmt(T.freeH,1)+' год — якби платили всім</td>'+
+       '<td class="n '+((T.resCred-T.freeCost)<0?"neg":"pos")+'">'+D.fmt(T.resCred-T.freeCost,2)+'</td><td class="n">—</td></tr>';
+  }else S='<tr><td colspan="3"><div class="emptymsg">Ще немає збережених днів.</div></td></tr>';
+  document.querySelector("#m-totals tbody").innerHTML=S;
+
+  drawCharts();
+}
+
+function drawCharts(){
+  var mk=D.$("f-month").value||new Date().toISOString().slice(0,7);
+  var ks=monthDays(mk),p=P();
+  if(!ks.length){
+    D.$("c-days").innerHTML='<div class="emptymsg">Ще немає збережених днів у цьому місяці.</div>';
+    D.$("c-struct").innerHTML='<div class="emptymsg">Ще немає збережених днів.</div>';
+    return;
+  }
+  var many=ks.length>12;
+  var rows=ks.map(function(dk){
+    var c=calcDay(state.days[dk]);
+    return {l:dk.slice(8),v:chartMode==="rev"?c.rev:c.resCred,d:2,
+            lab:many?" ":undefined,
+            note:chartMode==="rev"?("результат: "+D.fmt(c.resCred,2)+" zł"):("виручка: "+D.fmt(c.rev,2)+" zł")};
+  });
+  var opt={unit:"zł",W:Math.max(760,84+ks.length*36)};
+  if(chartMode==="rev"&&num(p.be)>0){opt.thr=num(p.be);opt.thrLabel="беззбитковість "+D.fmt(num(p.be))+" zł";opt.lo=0;}
+  D.vbars("c-days",rows,opt);
+  D.$("c-days-sub").textContent=chartMode==="rev"
+    ?"Каса кожного дня проти порога беззбитковості "+D.fmt(num(p.be))+" zł."
+    :"Результат кожного дня після продуктів, праці, постійних і кредиту.";
+
+  var T={rev:0,fc:0,labor:0},n=ks.length;
+  ks.forEach(function(dk){var c=calcDay(state.days[dk]);T.rev+=c.rev;T.fc+=c.fc;T.labor+=c.labor;});
+  var fixAcc=n*fixDay(),credAcc=n*credDay(),res=T.rev-T.fc-T.labor-fixAcc-credAcc;
+  D.hbars("c-struct",[
+    {l:"Виручка (каса)",v:T.rev,c:D.C.brand},
+    {l:"Продукти",v:T.fc,c:D.cat(2)},
+    {l:"Праця оплачена",v:T.labor,c:D.cat(1)},
+    {l:"Постійні платежі",v:fixAcc,c:D.cat(6)},
+    {l:"Кредит · тіло рати",v:credAcc,c:D.cat(3)},
+    {l:res>=0?"Лишилось":"Не вистачило",v:Math.abs(res),c:res>=0?D.C.good:D.C.crit,
+     lab:(res>=0?"+":"−")+D.fmt(Math.abs(res),2)}
+  ],{labW:210});
+}
+
+/* ---------- параметри ---------- */
+var ST_ICON={f:"st-f",d:"st-d",p:"st-p"};
+function renderParams(){
+  var p=P();
+  D.$("p-fck").value=p.fcK;D.$("p-fcb").value=p.fcB;
+  D.$("p-free").value=p.freeRate;D.$("p-days").value=p.workDays;
+  var H="";
+  p.fix.forEach(function(r,i){
+    H+='<tr><td>'+esc(r.l)+'</td><td class="stc"><i class="st '+(ST_ICON[r.st]||"st-p")+'"></i></td>'+
+       '<td class="n"><input type="number" autocomplete="off" min="0" step="0.01" data-fix="'+i+'" value="'+r.v+'"></td></tr>';
+  });
+  H+='<tr class="total"><td>РАЗОМ постійні на місяць</td><td></td><td class="n">'+D.fmt(fixOperMonth()+credMonth(),2)+'</td></tr>';
+  D.$("p-fix").innerHTML=H;
+  D.$("p-sums").innerHTML=
+    '<div class="key"><strong>На один робочий день ('+num(p.workDays)+' дн./міс):</strong> постійні без тіла кредиту — '+
+    money(fixDay())+' · тіло кредитної рати — '+money(credDay())+' · разом день несе '+
+    money(fixDay()+credDay())+' постійних платежів.</div>';
+  D.$("hm-fc").textContent=D.fmt(num(p.fcK),0)+"%";
+  D.$("hm-fix").textContent=D.fmt(fixDay()+credDay(),2)+" zł/день";
+}
+function paramsChanged(){
+  persist();renderParams();updateDayResult();renderMonth();
+}
+
+/* ---------- експорт / імпорт ---------- */
+function dl(name,text,mime){
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([text],{type:mime||"application/octet-stream"}));
+  a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);
+}
+function csvNum(n){return n.toFixed(2).replace(".",",");}
+function exportCsv(){
+  var rows=["Дата;Виручка;Продукти;Праця;Людей;Контрибуція;Постійні;Кредит;Результат дня;Безкошт. год;Якби платили всім"];
+  Object.keys(state.days).sort().forEach(function(dk){
+    var c=calcDay(state.days[dk]);
+    rows.push([dk,csvNum(c.rev),csvNum(c.fc),csvNum(c.labor),c.people,csvNum(c.contrib),
+      csvNum(fixDay()),csvNum(credDay()),csvNum(c.resCred),csvNum(c.freeH),csvNum(c.resFull)].join(";"));
+  });
+  dl("dumka_kalkulator_dni.csv","﻿"+rows.join("\r\n"),"text/csv;charset=utf-8");
+  D.$("io-msg").textContent="CSV збережено — відкривається в Excel (роздільник «;»).";
+}
+
+/* ---------- ініціалізація ---------- */
+function init(){
+  var today=new Date(),iso=today.toISOString().slice(0,10);
+  D.$("f-date").value=iso;
+  D.$("f-month").value=iso.slice(0,7);
+  renderParams();
+  loadFormFor(iso);
+  renderMonth();
+
+  /* — форма дня — */
+  D.$("f-date").addEventListener("change",function(){loadFormFor(this.value);});
+  D.$("f-rev").addEventListener("input",function(){form.rev=this.value;updateDayResult();});
+  D.$("f-bar").addEventListener("input",function(){form.bar=this.value;updateDayResult();});
+  D.$("f-split").addEventListener("change",function(){form.split=this.checked;syncTopInputs();updateDayResult();});
+
+  ["t-zal","t-kuh","t-free"].forEach(function(id){
+    var t=D.$(id);
+    t.addEventListener("input",function(e){
+      var el=e.target,g=el.getAttribute("data-g");if(!g)return;
+      form[g][+el.getAttribute("data-i")][el.getAttribute("data-f")]=el.value;
+      /* оновити суму рядка без повного перерендера (фокус лишається) */
+      var tr=el.closest("tr"),r=form[g][+el.getAttribute("data-i")];
+      var sum=(g==="free")?num(r.h)*num(P().freeRate):num(r.h)*num(r.s);
+      tr.querySelector(".sum").textContent=sum>0?D.fmt(sum,2)+" zł":"—";
+      updateDayResult();
+    });
+    t.addEventListener("click",function(e){
+      var b=e.target.closest("button[data-del]");if(!b)return;
+      form[b.getAttribute("data-del")].splice(+b.getAttribute("data-i"),1);
+      renderRows();updateDayResult();
+    });
+  });
+  document.querySelectorAll(".addrow").forEach(function(b){
+    b.addEventListener("click",function(){
+      var g=this.getAttribute("data-add");
+      form[g].push(g==="free"?{n:"",h:""}:{n:"",h:"",s:""});
+      renderRows();updateDayResult();
+    });
+  });
+
+  D.$("b-save").addEventListener("click",function(){
+    var date=D.$("f-date").value;
+    if(!date){alert("Оберіть дату дня.");return;}
+    state.days[date]=deep(form);persist();
+    D.$("f-month").value=date.slice(0,7);
+    var m=D.$("save-msg");m.classList.add("show");setTimeout(function(){m.classList.remove("show");},1800);
+    updateDayResult();renderMonth();
+  });
+  D.$("b-clearform").addEventListener("click",function(){
+    form=blankDay();syncTopInputs();renderRows();updateDayResult();
+  });
+
+  /* — місяць — */
+  D.$("f-month").addEventListener("change",renderMonth);
+  D.$("t-mchart").addEventListener("click",function(e){
+    var b=e.target.closest("button");if(!b)return;
+    [].forEach.call(this.children,function(x){x.classList.remove("on");});
+    b.classList.add("on");chartMode=b.getAttribute("data-m");drawCharts();
+  });
+  document.querySelector("#m-table tbody").addEventListener("click",function(e){
+    var a=e.target.closest("a.edit");if(!a)return;
+    var dk=a.getAttribute("data-date");
+    D.$("f-date").value=dk;loadFormFor(dk);
+    document.getElementById("s1").scrollIntoView({behavior:"smooth"});
+  });
+
+  /* — параметри — */
+  D.$("p-fck").addEventListener("change",function(){P().fcK=num(this.value);paramsChanged();});
+  D.$("p-fcb").addEventListener("change",function(){P().fcB=num(this.value);paramsChanged();});
+  D.$("p-free").addEventListener("change",function(){P().freeRate=num(this.value);paramsChanged();});
+  D.$("p-days").addEventListener("change",function(){P().workDays=Math.max(1,Math.round(num(this.value)));paramsChanged();});
+  D.$("p-fix").addEventListener("change",function(e){
+    var el=e.target,i=el.getAttribute("data-fix");if(i===null)return;
+    P().fix[+i].v=num(el.value);paramsChanged();
+  });
+
+  /* — дані — */
+  D.$("b-export").addEventListener("click",function(){
+    dl("dumka_kalkulator_kopia_"+new Date().toISOString().slice(0,10)+".json",
+       JSON.stringify(state,null,1),"application/json");
+    D.$("io-msg").textContent="Копію збережено у файл. Тримайте її, наприклад, у пошті чи на диску.";
+  });
+  D.$("b-import").addEventListener("click",function(){D.$("f-import").click();});
+  D.$("f-import").addEventListener("change",function(){
+    var f=this.files[0];if(!f)return;
+    var rd=new FileReader();
+    rd.onload=function(){
+      try{
+        var s=JSON.parse(rd.result);
+        if(!s||typeof s!=="object"||!s.days||!s.params)throw 0;
+        var fileDays=Object.keys(s.days).length,ownDays=Object.keys(state.days).length;
+        if(fileDays===0&&ownDays>0){
+          /* файл лише з параметрами (від консультанта): дні НЕ чіпаємо */
+          if(!confirm("Оновити параметри моделі з файлу? Введені дні залишаться без змін."))return;
+          state.params=s.params;
+        }else{
+          if(!confirm("Відновити дані з копії? Поточні введені дні буде замінено даними з файлу."))return;
+          state=s;
+        }
+        if(!state.params)state.params={};
+        var p=state.params;for(var k in DEF_PARAMS)if(p[k]===undefined)p[k]=DEF_PARAMS[k];
+        persist();renderParams();loadFormFor(D.$("f-date").value);renderMonth();
+        D.$("io-msg").textContent=(fileDays===0&&ownDays>0)
+          ?"Параметри оновлено з файлу; введені дні збережено ("+ownDays+")."
+          :"Дані відновлено з копії: днів у сховищі — "+Object.keys(state.days).length+".";
+      }catch(e){D.$("io-msg").textContent="⚠ Це не файл-копія калькулятора — дані не змінено.";}
+    };
+    rd.readAsText(f);this.value="";
+  });
+  D.$("b-csv").addEventListener("click",exportCsv);
+  D.$("b-wipe").addEventListener("click",function(){
+    if(!confirm("Стерти ВСІ збережені дні та повернути параметри до початкових? Це незворотно."))return;
+    try{localStorage.removeItem(LSKEY);}catch(e){}
+    state=loadState();renderParams();loadFormFor(D.$("f-date").value);renderMonth();
+    D.$("io-msg").textContent="Дані стерто. Параметри повернуто до цифр моделі аудиту.";
+  });
+
+  D.initTip();D.nav();
+  D.onTheme(function(){drawCharts();});
+
+  /* захист від тихого відновлення значень полів браузером після перезавантаження:
+     воно не кидає подій і розсинхронізовує дату з формою → через мить після
+     старту примусово повертаємо сьогоднішній день і перемальовуємо все з моделі */
+  setTimeout(function(){
+    if(D.$("f-date").value!==iso||D.$("f-month").value!==iso.slice(0,7)){
+      D.$("f-date").value=iso;D.$("f-month").value=iso.slice(0,7);
+      loadFormFor(iso);renderMonth();
+    }
+  },300);
+}
+init();
+</script>
+</body>
+</html>
